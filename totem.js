@@ -1,16 +1,15 @@
-const { uuid } = require('uuidv4');
-const fs = require('fs-extra');
-const { NFTStorage, File } = require ('nft.storage');
-const { packToFs } = require('ipfs-car/pack/fs');
-const { unpackStream } = require('ipfs-car/unpack');
-const { writeFiles } = require('ipfs-car/unpack/fs');
-const { FsBlockStore } = require('ipfs-car/blockstore/fs');
-const { MemoryBlockStore } = require('ipfs-car/blockstore/memory');
-const { IdbBlockStore } = require('ipfs-car/blockstore/idb');
-const got = require('got');
-const fetch = require('node-fetch');
-const { recursive } = require('ipfs-unixfs-exporter');
-const { CarReader, CarWriter } = require('@ipld/car');
+import {uuid} from 'uuidv4';
+import fs from 'fs-extra';
+import {NFTStorage, File} from 'nft.storage';
+import {packToFs} from 'ipfs-car/pack/fs';
+import {unpackStream} from 'ipfs-car/unpack';
+import {FsBlockStore} from 'ipfs-car/blockstore/fs';
+import {MemoryBlockStore} from 'ipfs-car/blockstore/memory';
+import fetch from 'node-fetch';
+import {CarReader, CarWriter} from '@ipld/car';
+import {packToStream} from 'ipfs-car/pack/stream';
+import path from 'path';
+import magic from 'mmmagic';
 
 
 var args = process.argv.slice(2)
@@ -19,71 +18,105 @@ var artist = args[0]
 var artistFilesPath = args[1]
 var dropName = args[2]
 
-const nftStorageApiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDZlODI3NGU1RTczNjdFZTIzYjg3NTM2NEFmZmQ2RWZmOTQzOTRiYjMiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTYyODIwNTAyMjYzMSwibmFtZSI6Im1lbWV4LWhhY2tmczIwMjEifQ.7Ry5UiHbbRH_nPNhXa--OSgv8yOMYjhZ-kULW7s3OmU';
-const nftStorageClient = new NFTStorage({ token: nftStorageApiKey });
+let apiKey;
 
-var artistDir = 'artists/' + artist + '/';
+try {
+  apiKey = fs.readFileSync('keys.txt', 'utf-8');
+} catch (err) {
+  console.log(err);
+}
+
+console.log('apiKey', apiKey);
+
+const nftStorageClient = new NFTStorage({ token: apiKey });
+
+var artistDir = 'artists/' + artist;
 
 console.log('creating artist directory...');
 
 fs.mkdir(artistDir, { recursive: true }, (err) => {
     if (err) {
         console.log(err);
+    } else {
+        console.log('created dir: ', artistDir);
     }
 });
 
 console.log('creating directory for this specific drop...');
 
-var dropDir = artistDir + dropName;
+var dropDir = artistDir + '/' + dropName;
 fs.mkdir(dropDir, { recursive: true }, (err) => {
     if (err) {
         console.log(err);
+    } else {
+        console.log('created dir: ', dropDir);
     }
 });
 
-// The totem is some unique information created on the fly.
-// The reason is to force reusable test data that can be uploaded
-// with a brand new CID due to the data "changing" each time on
-// account of the totem.
-
+// The totem is for forcing uniqueness for uploading repeatedly with a single test drop.
 console.log('creating totem...');
 
-var totem = JSON.stringify({
+var totem = {
     'artist': artist,
     'uuid': uuid()
-});
+};
 
+var totemAsJson = JSON.stringify(totem);
 var totemPath = dropDir + '/totem.json';
 
-fs.writeFile(totemPath, totem, (err) => {
+fs.writeFile(totemPath, totemAsJson, (err) => {
     if (err) {
         console.log(err);
     }
 });
 
-console.log('moving artist files to their drop directory...');
-console.log('from: ', artistFilesPath);
-console.log('to: ', dropDir);
+console.log('Copying files into the artist drop directory...');
 
-fs.copy(artistFilesPath, dropDir, err => {
-    if (err) {
-        console.log(err);
-    } else {
-        console.log('copy succeeded!');
-    }
-});
+fs.copySync(artistFilesPath, dropDir);
 
-encar(dropDir, dropName);
-decar('https://ipfs.io/api/v0/dag/export?arg=bafybeige4lr57upzqktvptaojllcwhjs7tmr4wppi57qjm2p7nreusb2om');
+const carPath = encar(dropDir, dropName);
 
-async function encar(dropDir, dropName) {
+generateBreadcrumbs(dropDir);
+var files = getDirFiles(dropDir, []);
+console.log(files.length);
+await uploadFiles(files);
+
+//uploadCar(carPath).then(() => console.log('upload complete')).catch(e => console.log(e));
+
+function encar(dropDir, dropName) {
     console.log('Creating CAR for ease of transport...');
+    const pathToCar = dropDir + '/' + dropName + '.car';
 
     packToFs({
         input: dropDir,
-        output: dropDir + '/' + dropName + '.car',
+        output: pathToCar,
         blockstore: new FsBlockStore()
     });
+
+    return pathToCar;
+}
+
+async function uploadCar(carPath) {
+    const writable = fs.createWriteStream(carPath);
+
+    await packToStream({
+        input: dropDir,
+        writable,
+        blockstore: new FsBlockStore()
+    });
+
+    writable.end();
+
+    const readable = fs.createReadStream(carPath);
+    let buffer = [];
+
+    readable.on('end', () => {
+        buffer = readable.read();
+    });
+
+    console.log('size of buffer ', buffer.length);
+
+    nftStorageClient.storeCar(buffer).catch(e => console.log(e));
 }
 
 async function decar(url) {
@@ -129,16 +162,52 @@ async function decar(url) {
     }
 }
 
+async function uploadFiles(files) {
+    const someResponse = await nftStorageClient.storeDirectory(files);
+    console.log(someResponse);
+}
+
+function generateBreadcrumbs(dropDir) {
+    let breadcrumb = {};
+    let files = [];
+
+    fs.readdirSync(dropDir).forEach(file => {
+        if (file.name !== '.DS_Store') {
+            if (fs.lstatSync(path.resolve(dropDir, file)).isDirectory()) {
+                console.log('directory: ', file);
+            } else {
+                var file = getFile(dropDir, file);
+                files.push(file);
+            }
+        }
+    });
+
+    console.log('breadcrumbs');
+    console.log(files.length);
+}
+
+function getDirFiles(someDir, files) {
+    console.log('getting files in ', someDir);
+    fs.readdirSync(someDir).forEach(file => {
+        console.log('looking at ', file);
+        if (fs.lstatSync(path.resolve(someDir, file)).isDirectory()) {
+            getDirFiles(someDir + '/' + file, files);
+        } else {
+            files.push(getFile(someDir, file));
+        }
+    });
+
+    return files;
+}
+
+function getFile(somePath, someFileName) {
+    const filePath = somePath + '/' + someFileName;
+    console.log('getting file for ', filePath);
+    var data = fs.readFileSync(filePath);
+    return new File([data], someFileName, {type: 'application/json'});
+}
+
 function isPic(data) {
     return false;
     //return isJpg(data) || isPng(data);
 }
-
-// For each drop directory, we should create a .CAR just in case we go with that approach
-// We should also be able to go in each drop directory and upload individual files,
-// and save the CIDs in a breadcrumb specific to that drop.
-
-// All breadcrumbs should be returned or accessible via a single .json file or endpoint.
-
-// TODO: implement storing the directory to nft.storage and saving the CID to a file
-//const someResponse = await nftStorageClient.storeDirectory()
