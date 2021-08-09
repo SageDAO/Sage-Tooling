@@ -9,7 +9,7 @@ import fetch from 'node-fetch';
 import {CarReader, CarWriter} from '@ipld/car';
 import {packToStream} from 'ipfs-car/pack/stream';
 import path from 'path';
-import magic from 'mmmagic';
+import mmm from 'mmmagic';
 
 
 var args = process.argv.slice(2)
@@ -79,7 +79,17 @@ const carPath = encar(dropDir, dropName);
 generateBreadcrumbs(dropDir);
 var files = getDirFiles(dropDir, []);
 console.log(files.length);
-await uploadFiles(files);
+const dirCid = await uploadFiles(files);
+
+var breadcrumb = getBreadcrumb(dirCid, files);
+
+fs.writeFile("breadcrumbs/" + dirCid + ".json", JSON.stringify(breadcrumb), (err) => {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log('writing breadcrumb to storage');
+    }
+});
 
 //uploadCar(carPath).then(() => console.log('upload complete')).catch(e => console.log(e));
 
@@ -164,8 +174,85 @@ async function decar(url) {
 
 async function uploadFiles(files) {
     const someResponse = await nftStorageClient.storeDirectory(files);
-    console.log(someResponse);
+    return someResponse;
 }
+
+async function uploadFile(file) {
+    return await nftStorageClient.storeDirectory(file);
+}
+
+function getBreadcrumb(dirCid, files) {
+    console.log('creating breadcrumb for directory cid ', dirCid);
+    console.log('contents viewable at ', 'https://' + dirCid + '.ipfs.dweb.link/');
+
+    var breadcrumb = {
+        'nfts': []
+    };
+
+    files.forEach(f => {
+        const filePathInIpfs = dirCid + "/" + f.name;
+
+        if (f.name.includes("nft")) {
+            breadcrumb.nfts.push({
+                'path': filePathInIpfs,
+                'name': f.name
+            });
+        } else if (f.name.includes("banner")) {
+            breadcrumb.banner = {
+                'path': filePathInIpfs,
+                'name': f.name
+            };
+        } else if (f.name.includes(".car")) {
+            breadcrumb.car = filePathInIpfs;
+        } else if (f.name.includes("metadata")) {
+            breadcrumb.metadata = filePathInIpfs;
+        } else if (f.name.includes("totem")) {
+            breadcrumb.totem = filePathInIpfs;
+        }
+    });
+
+    return breadcrumb;
+}
+
+/*function getBreadcrumb(files, dropDir) {
+    console.log("creating breadcrumb");
+    var magic = new mmm.Magic(mmm.MAGIC_MIME_TYPE);
+    let mimeType;
+    let filePath;
+
+    
+    var breadcrumb = {};
+
+    files.forEach(f => {
+
+        if (f.name.includes("nft")) {
+            filePath = dropDir + '/nfts/' + f.name;
+        } else {
+            filePath = dropDir + '/' + f.name;
+        }
+
+        magic.detectFile(filePath, function(err, res) {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log('found some mime type for file ', f.name);
+                console.log(res);
+                mimeType = res
+            }
+
+            //const cid = uploadFile(f);
+
+            if (mimeType.includes('image')) {
+                if (f.name.includes('banner')) {
+                    const cid = uploadFile(f);
+                    breadcrumb.banner = cid;
+                } else if (f.name.includes('nft')) {
+                    const cid = uploadFile(f);
+                }
+            }
+        });        
+    });
+}*/
 
 function generateBreadcrumbs(dropDir) {
     let breadcrumb = {};
