@@ -1,6 +1,7 @@
 {
   "type": "module",
   "dependencies": {
+    "fs-extra": "^10.0.0",
     "got": "^11.8.2",
     "ipfs-car": "^0.5.4",
     "ipfs-core": "^0.9.1",
@@ -9,6 +10,8 @@
     "is-jpg": "^2.0.0",
     "is-png": "^3.0.0",
     "mmmagic": "^0.5.3",
-    "node-fetch": "npm:@achingbrain/node-fetch@^2.6.7"
+    "nft.storage": "^3.0.1",
+    "node-fetch": "npm:@achingbrain/node-fetch@^2.6.7",
+    "uuidv4": "^6.2.11"
   }
 }

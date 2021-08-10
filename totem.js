@@ -13,10 +13,20 @@ import mmm from 'mmmagic';
 
 
 var args = process.argv.slice(2)
+var artistFilesPath = args[0]
+let artist;
+let dropName;
 
-var artist = args[0]
-var artistFilesPath = args[1]
-var dropName = args[2]
+let metadata = {};
+
+try {
+    metadata = JSON.parse(fs.readFileSync(artistFilesPath + '/metadata.json', 'utf8'));
+} catch (err) {
+    console.log('cannot read breadcrumb for some reason...', err);
+}
+
+artist = metadata.artistName;
+dropName = metadata.dropName;
 
 let apiKey;
 
