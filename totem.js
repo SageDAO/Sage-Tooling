@@ -23,38 +23,37 @@ let apiKey;
 try {
   apiKey = fs.readFileSync('keys.txt', 'utf-8');
 } catch (err) {
-  console.log(err);
+  console.log('Unable to load api key', err);
 }
-
-console.log('apiKey', apiKey);
 
 const nftStorageClient = new NFTStorage({ token: apiKey });
 
 var artistDir = 'artists/' + artist;
 
-console.log('creating artist directory...');
+console.log(`Creating ${artist}/ directory...`);
 
 fs.mkdir(artistDir, { recursive: true }, (err) => {
     if (err) {
         console.log(err);
     } else {
-        console.log('created dir: ', artistDir);
+        console.log(`Created ${artist}/ directory.`);
     }
 });
 
-console.log('creating directory for this specific drop...');
-
 var dropDir = artistDir + '/' + dropName;
+
+console.log(`Creating ${dropDir}/ directory...`);
+
 fs.mkdir(dropDir, { recursive: true }, (err) => {
     if (err) {
         console.log(err);
     } else {
-        console.log('created dir: ', dropDir);
+        console.log(`'Created ${dropDir}/ directory.`);
     }
 });
 
 // The totem is for forcing uniqueness for uploading repeatedly with a single test drop.
-console.log('creating totem...');
+console.log('Creating totem...');
 
 var totem = {
     'artist': artist,
@@ -64,13 +63,14 @@ var totem = {
 var totemAsJson = JSON.stringify(totem);
 var totemPath = dropDir + '/totem.json';
 
-fs.writeFile(totemPath, totemAsJson, (err) => {
-    if (err) {
-        console.log(err);
-    }
-});
+try {
+    fs.writeFileSync(totemPath, totemAsJson, { flag: 'w+' });
+    console.log('wrote totem...');
+} catch (err) {
+    console.log('unable to write totem ', err);
+}
 
-console.log('Copying files into the artist drop directory...');
+console.log(`Moving ${artistFilesPath} into ${dropDir}`);
 
 fs.copySync(artistFilesPath, dropDir);
 
@@ -83,11 +83,18 @@ const dirCid = await uploadFiles(files);
 
 var breadcrumb = getBreadcrumb(dirCid, files);
 
+try {
+    console.log("Adding metadata to breadcrumb...");
+    hydrateBreadcrumbMetadata(breadcrumb, dropDir + '/' + 'metadata.json');
+} catch (err) {
+    console.log("Something went wrong while adding metadata to breadcrumb ", err);
+}
+
 fs.writeFile("breadcrumbs/" + dirCid + ".json", JSON.stringify(breadcrumb), (err) => {
     if (err) {
         console.log(err);
     } else {
-        console.log('writing breadcrumb to storage');
+        console.log('Saved breadcrumb.');
     }
 });
 
@@ -182,15 +189,17 @@ async function uploadFile(file) {
 }
 
 function getBreadcrumb(dirCid, files) {
-    console.log('creating breadcrumb for directory cid ', dirCid);
-    console.log('contents viewable at ', 'https://' + dirCid + '.ipfs.dweb.link/');
+    console.log(`Generating breadcrumb for ${dirCid}`);
+    const contentsPath = 'https://' + dirCid + '.ipfs.dweb.link/';
+
+    console.log(contentsPath);
 
     var breadcrumb = {
         'nfts': []
     };
 
     files.forEach(f => {
-        const filePathInIpfs = dirCid + "/" + f.name;
+        const filePathInIpfs = contentsPath + f.name;
 
         if (f.name.includes("nft")) {
             breadcrumb.nfts.push({
@@ -205,13 +214,17 @@ function getBreadcrumb(dirCid, files) {
         } else if (f.name.includes(".car")) {
             breadcrumb.car = filePathInIpfs;
         } else if (f.name.includes("metadata")) {
-            breadcrumb.metadata = filePathInIpfs;
+            breadcrumb.metaDataPath = filePathInIpfs;
         } else if (f.name.includes("totem")) {
             breadcrumb.totem = filePathInIpfs;
         }
     });
 
     return breadcrumb;
+}
+
+function hydrateBreadcrumbMetadata(breadcrumb, pathToMetadata) {
+    breadcrumb.metadata = JSON.parse(fs.readFileSync(pathToMetadata, 'utf8'));
 }
 
 /*function getBreadcrumb(files, dropDir) {
