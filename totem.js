@@ -16,6 +16,8 @@ var args = process.argv.slice(2)
 var artistFilesPath = args[0]
 let artist;
 let dropName;
+let artistDir;
+let dropDir;
 
 let metadata = {};
 
@@ -27,68 +29,28 @@ try {
 
 artist = metadata.artistName;
 dropName = metadata.dropName;
+artistDir = 'artists/' + artist;
+dropDir = artistDir + '/' + dropName;
 
-let apiKey;
+// setup nft storage client
+const nftStorageClient = new NFTStorage({ token: loadApiKey() });
 
-try {
-  apiKey = fs.readFileSync('keys.txt', 'utf-8');
-} catch (err) {
-  console.log('Unable to load api key', err);
-}
+// make artist dir
+mkArtistDir(artistDir);
 
-const nftStorageClient = new NFTStorage({ token: apiKey });
+// make drop dir
+mkDropDir(dropDir);
 
-var artistDir = 'artists/' + artist;
+// create totem
+addTotem(artist);
 
-console.log(`Creating ${artist}/ directory...`);
+// staging files for subsequent processing
+stageDropFiles(artistFilesPath, dropDir);
 
-fs.mkdir(artistDir, { recursive: true }, (err) => {
-    if (err) {
-        console.log(err);
-    } else {
-        console.log(`Created ${artist}/ directory.`);
-    }
-});
+// create .CAR 
+encar(dropDir, dropName);
 
-var dropDir = artistDir + '/' + dropName;
-
-console.log(`Creating ${dropDir}/ directory...`);
-
-fs.mkdir(dropDir, { recursive: true }, (err) => {
-    if (err) {
-        console.log(err);
-    } else {
-        console.log(`'Created ${dropDir}/ directory.`);
-    }
-});
-
-// The totem is for forcing uniqueness for uploading repeatedly with a single test drop.
-console.log('Creating totem...');
-
-var totem = {
-    'artist': artist,
-    'uuid': uuid()
-};
-
-var totemAsJson = JSON.stringify(totem);
-var totemPath = dropDir + '/totem.json';
-
-try {
-    fs.writeFileSync(totemPath, totemAsJson, { flag: 'w+' });
-    console.log('wrote totem...');
-} catch (err) {
-    console.log('unable to write totem ', err);
-}
-
-console.log(`Moving ${artistFilesPath} into ${dropDir}`);
-
-fs.copySync(artistFilesPath, dropDir);
-
-const carPath = encar(dropDir, dropName);
-
-generateBreadcrumbs(dropDir);
 var files = getDirFiles(dropDir, []);
-console.log(files.length);
 const dirCid = await uploadFiles(files);
 
 var breadcrumb = getBreadcrumb(dirCid, files);
@@ -108,10 +70,66 @@ fs.writeFile("breadcrumbs/" + dirCid + ".json", JSON.stringify(breadcrumb), (err
     }
 });
 
-//uploadCar(carPath).then(() => console.log('upload complete')).catch(e => console.log(e));
+function loadApiKey() {
+    try {
+        return fs.readFileSync('keys.txt', 'utf-8');
+    } catch (err) {
+        console.log('Unable to load api key', err);
+        return "";
+    }
+}
+
+function mkArtistDir(artistDir) {
+    console.log(`Creating ${artist}/ directory...`);
+
+    fs.mkdir(artistDir, { recursive: true }, (err) => {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(`Created ${artist}/ directory.`);
+        }
+    });
+}
+
+function mkDropDir(dropDir) {
+    console.log(`Creating ${dropDir}/ directory...`);
+
+    fs.mkdir(dropDir, { recursive: true }, (err) => {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(`'Created ${dropDir}/ directory.`);
+        }
+    });
+}
+
+// The totem is for forcing uniqueness for uploading repeatedly with a single test drop.
+function addTotem(artist) {
+    console.log('Creating totem...');
+
+    var totem = {
+        'artist': artist,
+        'uuid': uuid()
+    };
+
+    var totemAsJson = JSON.stringify(totem);
+    var totemPath = dropDir + '/totem.json';
+
+    try {
+        fs.writeFileSync(totemPath, totemAsJson, { flag: 'w+' });
+        console.log('wrote totem...');
+    } catch (err) {
+        console.log('unable to write totem ', err);
+    }
+}
+
+function stageDropFiles(artistFilesPath, dropDir) {
+    console.log(`Moving ${artistFilesPath} into ${dropDir}`);
+    fs.copySync(artistFilesPath, dropDir);
+}
 
 function encar(dropDir, dropName) {
-    console.log('Creating CAR for ease of transport...');
+    console.log(`Archiving ${dropDir} as a .CAR...`);
     const pathToCar = dropDir + '/' + dropName + '.car';
 
     packToFs({
@@ -194,15 +212,9 @@ async function uploadFiles(files) {
     return someResponse;
 }
 
-async function uploadFile(file) {
-    return await nftStorageClient.storeDirectory(file);
-}
-
 function getBreadcrumb(dirCid, files) {
     console.log(`Generating breadcrumb for ${dirCid}`);
     const contentsPath = 'https://' + dirCid + '.ipfs.dweb.link/';
-
-    console.log(contentsPath);
 
     var breadcrumb = {
         'nfts': []
@@ -235,65 +247,6 @@ function getBreadcrumb(dirCid, files) {
 
 function hydrateBreadcrumbMetadata(breadcrumb, pathToMetadata) {
     breadcrumb.metadata = JSON.parse(fs.readFileSync(pathToMetadata, 'utf8'));
-}
-
-/*function getBreadcrumb(files, dropDir) {
-    console.log("creating breadcrumb");
-    var magic = new mmm.Magic(mmm.MAGIC_MIME_TYPE);
-    let mimeType;
-    let filePath;
-
-    
-    var breadcrumb = {};
-
-    files.forEach(f => {
-
-        if (f.name.includes("nft")) {
-            filePath = dropDir + '/nfts/' + f.name;
-        } else {
-            filePath = dropDir + '/' + f.name;
-        }
-
-        magic.detectFile(filePath, function(err, res) {
-            if (err) {
-                console.log(err);
-            } else {
-                console.log('found some mime type for file ', f.name);
-                console.log(res);
-                mimeType = res
-            }
-
-            //const cid = uploadFile(f);
-
-            if (mimeType.includes('image')) {
-                if (f.name.includes('banner')) {
-                    const cid = uploadFile(f);
-                    breadcrumb.banner = cid;
-                } else if (f.name.includes('nft')) {
-                    const cid = uploadFile(f);
-                }
-            }
-        });        
-    });
-}*/
-
-function generateBreadcrumbs(dropDir) {
-    let breadcrumb = {};
-    let files = [];
-
-    fs.readdirSync(dropDir).forEach(file => {
-        if (file.name !== '.DS_Store') {
-            if (fs.lstatSync(path.resolve(dropDir, file)).isDirectory()) {
-                console.log('directory: ', file);
-            } else {
-                var file = getFile(dropDir, file);
-                files.push(file);
-            }
-        }
-    });
-
-    console.log('breadcrumbs');
-    console.log(files.length);
 }
 
 function getDirFiles(someDir, files) {

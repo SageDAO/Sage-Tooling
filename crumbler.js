@@ -8,6 +8,10 @@ if (action === 'crumbs') {
     createBreadcrumbTrail();
 } else if (action === 'clean') {
     cleanBreadcrumbs();
+} else {
+    console.log("Paramter not recognized. Currently supported actions are: ");
+    console.log("crumbs");
+    console.log("clean");
 }
 
 function createBreadcrumbTrail() {
@@ -42,8 +46,10 @@ function cleanBreadcrumbs() {
     });
 
      try {
-         fs.rmSync("breadcrumbtrail.json");
-         console.log("Deleted breadcrumbtrail.");
+         if (fs.existsSync("breadcrumbtrail.json")) {
+            fs.rmSync("breadcrumbtrail.json");
+            console.log("Deleted breadcrumbtrail.");
+         }
      } catch (err) {
          if (err) {
              console.log("Couldn't delete breadcrumbtrail...", err);
