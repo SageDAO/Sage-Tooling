@@ -49,3 +49,12 @@ To delete the contents of breadcrumbs/ and to delete the breadcrumtrail.json:
 ```
 node crumbler.js clean
 ```
+
+## megazord.js
+
+If you have a directory of drops and you want to process them via a single command, you can run:
+
+```node megazord.js pathToDirectoryOfDirectories```
+
+This will run crumbler to delete any existing breadcrumbs, then it will run totem.js on each of the folders in your directory.
+And finally, it will use crumbler to create breadcrumbstrail.json.

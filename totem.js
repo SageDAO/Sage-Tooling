@@ -114,6 +114,7 @@ function addTotem(artist) {
 
     var totemAsJson = JSON.stringify(totem);
     var totemPath = dropDir + '/totem.json';
+    console.log('totem path , ', totemPath);
 
     try {
         fs.writeFileSync(totemPath, totemAsJson, { flag: 'w+' });
@@ -250,9 +251,7 @@ function hydrateBreadcrumbMetadata(breadcrumb, pathToMetadata) {
 }
 
 function getDirFiles(someDir, files) {
-    console.log('getting files in ', someDir);
     fs.readdirSync(someDir).forEach(file => {
-        console.log('looking at ', file);
         if (fs.lstatSync(path.resolve(someDir, file)).isDirectory()) {
             getDirFiles(someDir + '/' + file, files);
         } else {
@@ -265,7 +264,6 @@ function getDirFiles(someDir, files) {
 
 function getFile(somePath, someFileName) {
     const filePath = somePath + '/' + someFileName;
-    console.log('getting file for ', filePath);
     var data = fs.readFileSync(filePath);
     return new File([data], someFileName, {type: 'application/json'});
 }
