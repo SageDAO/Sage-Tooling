@@ -271,6 +271,15 @@ function getDrop(dirCid, files) {
 
 function hydrateDropMetadata(drop, pathToMetadata) {
     drop.metadata = JSON.parse(fs.readFileSync(pathToMetadata, 'utf8'));
+
+    // add rarities 
+    console.log("Adding rarities");
+    drop.nfts.forEach(nft => {
+        var nftName = nft.name.split('.')[0];
+
+        var relevantEntryInMetadata = drop.metadata[nftName];
+        nft.rarity = relevantEntryInMetadata.rarity;
+    });
 }
 
 function createPrizes(drop) {
