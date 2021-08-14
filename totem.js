@@ -245,16 +245,20 @@ function getDrop(dirCid, files) {
 
     files.forEach(f => {
         const filePathInIpfs = contentsPath + f.name;
+        const fileName = f.name;
+        const name = f.name.split('.')[0];
 
         if (f.name.includes("nft")) {
             drop.nfts.push({
                 'path': filePathInIpfs,
-                'name': f.name
+                'fileName': fileName,
+                "name": name
             });
         } else if (f.name.includes("banner")) {
             drop.banner = {
                 'path': filePathInIpfs,
-                'name': f.name
+                'fileName': fileName,
+                'name': name
             };
         } else if (f.name.includes(".car")) {
             drop.car = filePathInIpfs;
