@@ -9,8 +9,6 @@ import fetch from 'node-fetch';
 import {CarReader, CarWriter} from '@ipld/car';
 import {packToStream} from 'ipfs-car/pack/stream';
 import path from 'path';
-import mmm from 'mmmagic';
-
 
 var args = process.argv.slice(2)
 var artistFilesPath = args[0]
@@ -24,7 +22,7 @@ let metadata = {};
 try {
     metadata = JSON.parse(fs.readFileSync(artistFilesPath + '/metadata.json', 'utf8'));
 } catch (err) {
-    console.log('cannot read breadcrumb for some reason...', err);
+    console.log('cannot read drop for some reason...', err);
 }
 
 artist = metadata.artistName;
@@ -42,7 +40,7 @@ mkArtistDir(artistDir);
 mkDropDir(dropDir);
 
 // create totem
-addTotem(artist);
+//addTotem(artist);
 
 // staging files for subsequent processing
 stageDropFiles(artistFilesPath, dropDir);
@@ -53,20 +51,44 @@ encar(dropDir, dropName);
 var files = getDirFiles(dropDir, []);
 const dirCid = await uploadFiles(files);
 
-var breadcrumb = getBreadcrumb(dirCid, files);
+var drop = getDrop(dirCid, files);
 
 try {
-    console.log("Adding metadata to breadcrumb...");
-    hydrateBreadcrumbMetadata(breadcrumb, dropDir + '/' + 'metadata.json');
+    console.log("Adding metadata to drop...");
+    hydrateDropMetadata(drop, dropDir + '/' + 'metadata.json');
 } catch (err) {
-    console.log("Something went wrong while adding metadata to breadcrumb ", err);
+    console.log("Something went wrong while adding metadata to drop ", err);
 }
 
-fs.writeFile("breadcrumbs/" + dirCid + ".json", JSON.stringify(breadcrumb), (err) => {
+console.log('generating prize metadata...');
+var prizes = createPrizes(drop);
+
+const prizeBaseDir = "prizes/" + dirCid + "/";
+fs.mkdirSync(prizeBaseDir);
+
+var counter = 0;
+var prizeIds = [];
+
+prizes.forEach(prize => {
+    prizeIds.push(counter);
+    fs.writeFileSync(prizeBaseDir + counter + ".json", JSON.stringify(prize));
+    counter++;
+});
+
+console.log('uploading prize metadata...');
+var prizeFiles = getDirFiles(prizeBaseDir, []); 
+var prizeMetadataCid = await uploadFiles(prizeFiles);
+
+console.log('prize metadata can be found at cid ', prizeMetadataCid);
+
+drop.prizeMetadataCid = prizeMetadataCid;
+drop.prizeIds = prizeIds;
+
+fs.writeFile("drops/" + dirCid + ".json", JSON.stringify(drop), (err) => {
     if (err) {
         console.log(err);
     } else {
-        console.log('Saved breadcrumb.');
+        console.log('Saved drop.');
     }
 });
 
@@ -213,11 +235,11 @@ async function uploadFiles(files) {
     return someResponse;
 }
 
-function getBreadcrumb(dirCid, files) {
-    console.log(`Generating breadcrumb for ${dirCid}`);
+function getDrop(dirCid, files) {
+    console.log(`Generating drop for ${dirCid}`);
     const contentsPath = 'https://' + dirCid + '.ipfs.dweb.link/';
 
-    var breadcrumb = {
+    var drop = {
         'nfts': []
     };
 
@@ -225,29 +247,51 @@ function getBreadcrumb(dirCid, files) {
         const filePathInIpfs = contentsPath + f.name;
 
         if (f.name.includes("nft")) {
-            breadcrumb.nfts.push({
+            drop.nfts.push({
                 'path': filePathInIpfs,
                 'name': f.name
             });
         } else if (f.name.includes("banner")) {
-            breadcrumb.banner = {
+            drop.banner = {
                 'path': filePathInIpfs,
                 'name': f.name
             };
         } else if (f.name.includes(".car")) {
-            breadcrumb.car = filePathInIpfs;
+            drop.car = filePathInIpfs;
         } else if (f.name.includes("metadata")) {
-            breadcrumb.metaDataPath = filePathInIpfs;
+            drop.metaDataPath = filePathInIpfs;
         } else if (f.name.includes("totem")) {
-            breadcrumb.totem = filePathInIpfs;
+            drop.totem = filePathInIpfs;
         }
     });
 
-    return breadcrumb;
+    console.log('# of nfts in drop: ', drop.nfts.length);
+    return drop;
 }
 
-function hydrateBreadcrumbMetadata(breadcrumb, pathToMetadata) {
-    breadcrumb.metadata = JSON.parse(fs.readFileSync(pathToMetadata, 'utf8'));
+function hydrateDropMetadata(drop, pathToMetadata) {
+    drop.metadata = JSON.parse(fs.readFileSync(pathToMetadata, 'utf8'));
+}
+
+function createPrizes(drop) {
+    let prizes = [];
+    console.log("Creating prizes for drop " + JSON.stringify(drop));
+
+    drop.nfts.forEach(nft => {
+        var nftName = nft.name.split('.')[0];
+
+        console.log('nftName', nftName);
+        console.log('metadata', drop.metadata);
+        var relevantMetadata = drop.metadata[nftName];
+
+        prizes.push({
+            'name': relevantMetadata.name,
+            'description': relevantMetadata.description,
+            'image': nft.path
+        });
+    });
+
+    return prizes;
 }
 
 function getDirFiles(someDir, files) {

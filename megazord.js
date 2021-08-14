@@ -54,7 +54,7 @@ function processData(path, callback) {
 
             child.on('exit', function(status) {
                 if (status === 0) {
-                    console.log(`Finished processing ${path}`);
+                    console.log(`Finished processing ${dropPath}`);
                     counter--;
 
                     if (counter === 0) {

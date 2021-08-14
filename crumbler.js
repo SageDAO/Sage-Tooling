@@ -5,54 +5,71 @@ const args = process.argv.slice(2);
 const action = args[0];
 
 if (action === 'crumbs') {
-    createBreadcrumbTrail();
+    createDrops();
 } else if (action === 'clean') {
-    cleanBreadcrumbs();
+    cleanDrops();
 } else {
     console.log("Paramter not recognized. Currently supported actions are: ");
     console.log("crumbs");
     console.log("clean");
 }
 
-function createBreadcrumbTrail() {
-    console.log('Creating breadcrumbtrails.json...');
-    let breadcrumbs = [];
+function createDrops() {
+    console.log('Creating drops.json...');
+    let drops = [];
 
-    fs.readdirSync("breadcrumbs").forEach(file => {
+    fs.readdirSync("drops").forEach(file => {
         if (file.includes(".json")) {
             try {
-                var asObj = JSON.parse(fs.readFileSync('breadcrumbs/' + file, 'utf8'));
+                var drop = JSON.parse(fs.readFileSync('drops/' + file, 'utf8'));
             } catch (err) {
-                console.log('cannot read breadcrumb for some reason...', err);
+                console.log('cannot read drops/ for some reason...', err);
             }
-            breadcrumbs.push(asObj);
+
+            drops.push(drop);
         }
     });
 
-    var asJson = JSON.stringify(breadcrumbs);
+    var asJson = JSON.stringify(drops);
 
-    fs.writeFileSync("breadcrumbtrail.json", asJson);
+    fs.writeFileSync("drops.json", asJson);
 
-    console.log('Created breadcrumbtrail.json...');
+    console.log('Created drops.json...');
 }
 
-function cleanBreadcrumbs() {
-    fs.emptyDir("breadcrumbs", (err) => {
+function cleanDrops() {
+    fs.emptyDir("drops", (err) => {
         if (err) {
-            console.log("Couldn't delete breadcrumbs...", err);
+            console.log("Couldn't delete drops/", err);
         } else {
-            console.log("Deleted breadcrumbs.");
+            console.log("Deleted drops/");
+        }
+    });
+
+    fs.emptyDir("artists", (err) => {
+        if (err) {
+            console.log("Couldn't delete artists/", err);
+        } else {
+            console.log("Deleted artists/");
+        }
+    });
+
+    fs.emptyDir("prizes", (err) => {
+        if (err) {
+            console.log("Couldn't delete prizes/", err);
+        } else {
+            console.log("Deleted prizes/");
         }
     });
 
      try {
-         if (fs.existsSync("breadcrumbtrail.json")) {
-            fs.rmSync("breadcrumbtrail.json");
-            console.log("Deleted breadcrumbtrail.");
+         if (fs.existsSync("drops.json")) {
+            fs.rmSync("drops.json");
+            console.log("Deleted drops.json");
          }
      } catch (err) {
          if (err) {
-             console.log("Couldn't delete breadcrumbtrail...", err);
+             console.log("Couldn't delete drops.json...", err);
          }
      }
 }
