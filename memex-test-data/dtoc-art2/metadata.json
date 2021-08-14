@@ -1,0 +1,21 @@
+{
+    "status": "planned",
+    "entryFee": 1,
+    "lotteryId": 123,
+    "lotSize": 2,
+    "costPerTicket": 1,
+    "startTime": 1628604156000,
+    "endTime": 1628690556000,
+    "artistName": "dtoc",
+    "dropName": "dtoc-drop2",
+    "nft1": {
+        "name": "Japanese town at night",
+        "description": "A Japanese town at night",
+        "rarity": "1000 Editions | 90% Chance"
+    },
+    "nft2": {
+        "name": "Starry Sky",
+        "description": "A vast starry sky",
+        "rarity": "100 Editions | 9% Chance"
+    }
+}
