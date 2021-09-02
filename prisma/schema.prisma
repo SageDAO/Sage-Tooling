@@ -1,0 +1,29 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL") 
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Nft {
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(255)
+  IpfsPath String @db.VarChar(255)
+  drop Drop @relation(fields: [dropId], references: [id])
+  dropId Int 
+}
+
+model Drop {
+  id Int @id @default(autoincrement())
+  title String @db.VarChar(255)
+  bannerImagePath String @db.VarChar(255)
+  bannerImageName String @db.VarChar(255)
+  metadataPath String @db.VarChar(255)
+  nfts Nft[] 
+}
