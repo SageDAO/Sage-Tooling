@@ -250,7 +250,7 @@ function getDrop(dirCid, files) {
 
         if (f.name.includes("nft")) {
             drop.nfts.push({
-                'path': filePathInIpfs,
+                'ipfsPath': filePathInIpfs,
                 'fileName': fileName,
                 "name": name
             });

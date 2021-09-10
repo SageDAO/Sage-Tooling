@@ -13,7 +13,7 @@ async function save(drop) {
         name: nft.name,
         description: nft.description,
         rarity: nft.rarity,
-        IpfsPath: nft.path
+        ipfsPath: nft.ipfsPath
       });
     });
 

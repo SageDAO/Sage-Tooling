@@ -16,7 +16,7 @@ model Nft {
   name String @db.Text
   description String @db.Text
   rarity String @db.Text
-  IpfsPath String @db.Text
+  ipfsPath String @db.Text
   drop Drop @relation(fields: [dropId], references: [id])
   dropId Int 
 }
@@ -37,3 +37,4 @@ model Drop {
   dropDescription String @db.Text
   nfts Nft[] 
 }
+
