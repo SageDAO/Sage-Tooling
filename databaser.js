@@ -91,6 +91,8 @@ async function main() {
     }
   });
   console.log('drops: ', drops);
+
+  prisma.$disconnect();
 }
 
 main()
