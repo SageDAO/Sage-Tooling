@@ -1,7 +1,7 @@
 {
   "type": "module",
   "dependencies": {
-    "@prisma/client": "^2.30.2",
+    "@prisma/client": "^3.0.2",
     "fs-extra": "^10.0.0",
     "got": "^11.8.2",
     "ipfs-car": "^0.5.4",
@@ -17,6 +17,6 @@
     "uuidv4": "^6.2.11"
   },
   "devDependencies": {
-    "prisma": "^2.30.2"
+    "prisma": "^3.0.2"
   }
 }

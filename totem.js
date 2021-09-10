@@ -274,7 +274,16 @@ function getDrop(dirCid, files) {
 }
 
 function hydrateDropMetadata(drop, pathToMetadata) {
-    drop.metadata = JSON.parse(fs.readFileSync(pathToMetadata, 'utf8'));
+    const relevantMetadata = JSON.parse(fs.readFileSync(pathToMetadata, 'utf8'));
+    drop.metadata = relevantMetadata;
+
+    drop.lotteryId = 123; // temporary hard-code for testing purposes
+    drop.costPerTicket = relevantMetadata.costPerTicket;
+    drop.startTime = relevantMetadata.startTime;
+    drop.endTime = relevantMetadata.endTime;
+    drop.artistName = relevantMetadata.artistName;
+    drop.dropName = relevantMetadata.dropName;
+    drop.dropDescription = relevantMetadata.dropDescription;
 
     // add rarities 
     console.log("Adding rarities");
@@ -283,6 +292,7 @@ function hydrateDropMetadata(drop, pathToMetadata) {
 
         var relevantEntryInMetadata = drop.metadata[nftName];
         nft.rarity = relevantEntryInMetadata.rarity;
+        nft.description = relevantEntryInMetadata.description;
     });
 }
 

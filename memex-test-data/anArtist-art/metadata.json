@@ -4,10 +4,11 @@
     "lotteryId": 123,
     "lotSize": 2,
     "costPerTicket": 1,
-    "startTime": 1628886889000,
-    "endTime": 1628973289000,
+    "startTime": "1628886889000",
+    "endTime": "1628973289000",
     "artistName": "anArtist",
     "dropName": "anArtistDrop",
+    "dropDescription": "someDescription",
     "nft1": {
         "name": "Japanese town at night",
         "description": "A Japanese town at night",

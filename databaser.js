@@ -11,16 +11,26 @@ async function save(drop) {
     drop.nfts.forEach(nft => {
       nftsAsData.push({
         name: nft.name,
+        description: nft.description,
+        rarity: nft.rarity,
         IpfsPath: nft.path
       });
     });
 
     const someDrop = await prisma.drop.create({
       data: {
-        title: drop.metadata.dropName,
+        lotteryId: drop.lotteryId,
         bannerImagePath: drop.banner.path,
         bannerImageName: drop.banner.name,
         metadataPath: drop.metaDataPath,
+        costPerTicket: drop.costPerTicket,
+        prizeIds: drop.prizeIds,
+        prizeMetadataCid: drop.prizeMetadataCid,
+        startTime: drop.startTime,
+        endTime: drop.endTime,
+        artistName: drop.artistName,
+        dropName: drop.dropName,
+        dropDescription: drop.dropDescription,
         nfts: {
           createMany: {
             data: nftsAsData
@@ -47,10 +57,23 @@ async function main() {
     });
 
     let dropData = {
-      title: drop.metadata.dropName,
+      lotteryId: drop.lotteryId,
       bannerImagePath: drop.banner.path,
       bannerImageName: drop.banner.name,
-      metadataPath: drop.metaDataPath
+      metadataPath: drop.metaDataPath,
+      costPerTicket: drop.costPerTicket,
+      prizeIds: drop.prizeIds,
+      prizeMetadataCid: drop.prizeMetadataCid,
+      startTime: drop.startTime,
+      endTime: drop.endTime,
+      artistName: drop.artistName,
+      dropName: drop.dropName,
+      dropDescription: drop.dropDescription,
+      nfts: {
+        createMany: {
+          data: nftsAsData
+        }
+      }
     };
 
     dropsAsData.push(dropData);
