@@ -260,6 +260,9 @@ function getDrop(dirCid, files) {
                 'fileName': fileName,
                 'name': name
             };
+
+            drop.bannerImagePath = filePathInIpfs;
+            drop.bannerImageName = name;
         } else if (f.name.includes(".car")) {
             drop.car = filePathInIpfs;
         } else if (f.name.includes("metadata")) {
@@ -277,7 +280,7 @@ function hydrateDropMetadata(drop, pathToMetadata) {
     const relevantMetadata = JSON.parse(fs.readFileSync(pathToMetadata, 'utf8'));
     drop.metadata = relevantMetadata;
 
-    drop.lotteryId = 123; // temporary hard-code for testing purposes
+    drop.lotteryId = relevantMetadata.lotteryId; // this will come from Dante's script, setting to this for testing purposes
     drop.costPerTicket = relevantMetadata.costPerTicket;
     drop.startTime = relevantMetadata.startTime;
     drop.endTime = relevantMetadata.endTime;

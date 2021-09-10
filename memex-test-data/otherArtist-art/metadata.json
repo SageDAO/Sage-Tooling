@@ -1,7 +1,7 @@
 {
     "status": "planned",
     "entryFee": 1,
-    "lotteryId": 123,
+    "lotteryId": 456,
     "lotSize": 2,
     "costPerTicket": 1,
     "startTime": "1628604156000",
