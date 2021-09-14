@@ -9,14 +9,15 @@
     "artistName": "dtoc",
     "dropName": "dtoc-drop2",
     "dropDescription": "someDescription",
+    "numberOfNftsInDrop": 2,
     "nft1": {
         "name": "Japanese town at night",
         "description": "A Japanese town at night",
-        "rarity": "1000 Editions | 90% Chance"
+        "numberOfMints": 10
     },
     "nft2": {
         "name": "Starry Sky",
         "description": "A vast starry sky",
-        "rarity": "100 Editions | 9% Chance"
+        "numberOfMints": 100
     }
 }

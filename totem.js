@@ -287,16 +287,39 @@ function hydrateDropMetadata(drop, pathToMetadata) {
     drop.artistName = relevantMetadata.artistName;
     drop.dropName = relevantMetadata.dropName;
     drop.dropDescription = relevantMetadata.dropDescription;
+    drop.numberOfNftsInDrop = relevantMetadata.numberOfNftsInDrop;
 
     // add rarities 
     console.log("Adding rarities");
+    let mintsPerDrop = 0;
+
+    drop.nfts.forEach(nft => {
+        var nftName = nft.name.split('.')[0];
+        var relevantEntryInMetadata = drop.metadata[nftName];
+
+        mintsPerDrop += relevantEntryInMetadata.numberOfMints;
+    });
+
+    let nftsWithRarity = [];
+
     drop.nfts.forEach(nft => {
         var nftName = nft.name.split('.')[0];
 
         var relevantEntryInMetadata = drop.metadata[nftName];
-        nft.rarity = relevantEntryInMetadata.rarity;
-        nft.description = relevantEntryInMetadata.description;
+
+        const numberOfMints = relevantEntryInMetadata.numberOfMints;
+        const probabilityOfPull = ((numberOfMints / mintsPerDrop) * 100).toFixed(2);
+        const rarity = `${numberOfMints} Editions | ${probabilityOfPull}% Chance`;
+
+        nftsWithRarity.push({
+            'name': nftName,
+            'description': relevantEntryInMetadata.description,
+            'numberOfMints': numberOfMints,
+            'rarity': rarity
+        });
     });
+
+    drop.nfts = nftsWithRarity;
 }
 
 function createPrizes(drop) {
@@ -306,8 +329,6 @@ function createPrizes(drop) {
     drop.nfts.forEach(nft => {
         var nftName = nft.name.split('.')[0];
 
-        console.log('nftName', nftName);
-        console.log('metadata', drop.metadata);
         var relevantMetadata = drop.metadata[nftName];
 
         prizes.push({
