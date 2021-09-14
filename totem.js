@@ -315,7 +315,8 @@ function hydrateDropMetadata(drop, pathToMetadata) {
             'name': nftName,
             'description': relevantEntryInMetadata.description,
             'numberOfMints': numberOfMints,
-            'rarity': rarity
+            'rarity': rarity,
+            'ipfsPath': nft.ipfsPath
         });
     });
 

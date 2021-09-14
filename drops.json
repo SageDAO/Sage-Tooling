@@ -5,31 +5,36 @@
                 "name": "nft1",
                 "description": "A Japanese town at night",
                 "numberOfMints": 1,
-                "rarity": "1 Editions | 0.01% Chance"
+                "rarity": "1 Editions | 0.01% Chance",
+                "ipfsPath": "https://bafybeib5gtnvky4qk5xuvm57hmftr3b6o4hmgh7tkdcx7o73dfn6oaaxzu.ipfs.dweb.link/nft1.png"
             },
             {
                 "name": "nft2",
                 "description": "A vast starry sky",
                 "numberOfMints": 10,
-                "rarity": "10 Editions | 0.09% Chance"
+                "rarity": "10 Editions | 0.09% Chance",
+                "ipfsPath": "https://bafybeib5gtnvky4qk5xuvm57hmftr3b6o4hmgh7tkdcx7o73dfn6oaaxzu.ipfs.dweb.link/nft2.png"
             },
             {
                 "name": "nft3",
                 "description": "A picture of someone's iris",
                 "numberOfMints": 100,
-                "rarity": "100 Editions | 0.90% Chance"
+                "rarity": "100 Editions | 0.90% Chance",
+                "ipfsPath": "https://bafybeib5gtnvky4qk5xuvm57hmftr3b6o4hmgh7tkdcx7o73dfn6oaaxzu.ipfs.dweb.link/nft3.png"
             },
             {
                 "name": "nft4",
                 "description": "An assortment of yummy snacks",
                 "numberOfMints": 1000,
-                "rarity": "1000 Editions | 9.00% Chance"
+                "rarity": "1000 Editions | 9.00% Chance",
+                "ipfsPath": "https://bafybeib5gtnvky4qk5xuvm57hmftr3b6o4hmgh7tkdcx7o73dfn6oaaxzu.ipfs.dweb.link/nft4.png"
             },
             {
                 "name": "nft5",
                 "description": "A Deer or an antelope?",
                 "numberOfMints": 10000,
-                "rarity": "10000 Editions | 90.00% Chance"
+                "rarity": "10000 Editions | 90.00% Chance",
+                "ipfsPath": "https://bafybeib5gtnvky4qk5xuvm57hmftr3b6o4hmgh7tkdcx7o73dfn6oaaxzu.ipfs.dweb.link/nft5.png"
             }
         ],
         "car": "https://bafybeib5gtnvky4qk5xuvm57hmftr3b6o4hmgh7tkdcx7o73dfn6oaaxzu.ipfs.dweb.link/anArtistDrop.car",
@@ -102,19 +107,22 @@
                 "name": "nft1",
                 "description": "A Japanese town at night",
                 "numberOfMints": 10,
-                "rarity": "10 Editions | 0.90% Chance"
+                "rarity": "10 Editions | 0.90% Chance",
+                "ipfsPath": "https://bafybeib5lbimz34eootz625mjcw6jokn2sfznxzqii2znt2ep6esr7qzge.ipfs.dweb.link/nft1.png"
             },
             {
                 "name": "nft2",
                 "description": "A vast starry sky",
                 "numberOfMints": 100,
-                "rarity": "100 Editions | 9.01% Chance"
+                "rarity": "100 Editions | 9.01% Chance",
+                "ipfsPath": "https://bafybeib5lbimz34eootz625mjcw6jokn2sfznxzqii2znt2ep6esr7qzge.ipfs.dweb.link/nft2.png"
             },
             {
                 "name": "nft3",
                 "description": "A picture of someone's iris",
                 "numberOfMints": 1000,
-                "rarity": "1000 Editions | 90.09% Chance"
+                "rarity": "1000 Editions | 90.09% Chance",
+                "ipfsPath": "https://bafybeib5lbimz34eootz625mjcw6jokn2sfznxzqii2znt2ep6esr7qzge.ipfs.dweb.link/nft3.png"
             }
         ],
         "banner": {
@@ -175,13 +183,15 @@
                 "name": "nft1",
                 "description": "A Japanese town at night",
                 "numberOfMints": 10,
-                "rarity": "10 Editions | 9.09% Chance"
+                "rarity": "10 Editions | 9.09% Chance",
+                "ipfsPath": "https://bafybeibytmdvkh6ch6skqgczsrtozvwatk5lrjzmyayjoplkpdvopwvmci.ipfs.dweb.link/nft1.png"
             },
             {
                 "name": "nft2",
                 "description": "A vast starry sky",
                 "numberOfMints": 100,
-                "rarity": "100 Editions | 90.91% Chance"
+                "rarity": "100 Editions | 90.91% Chance",
+                "ipfsPath": "https://bafybeibytmdvkh6ch6skqgczsrtozvwatk5lrjzmyayjoplkpdvopwvmci.ipfs.dweb.link/nft2.png"
             }
         ],
         "banner": {
@@ -236,25 +246,29 @@
                 "name": "nft1",
                 "description": "A Japanese town at night",
                 "numberOfMints": 1,
-                "rarity": "1 Editions | 0.09% Chance"
+                "rarity": "1 Editions | 0.09% Chance",
+                "ipfsPath": "https://bafybeifby762swxzgfqw7ft25gysqzjiuh34n7ee4dx2tf4mgspvttk5ze.ipfs.dweb.link/nft1.png"
             },
             {
                 "name": "nft2",
                 "description": "A vast starry sky",
                 "numberOfMints": 10,
-                "rarity": "10 Editions | 0.90% Chance"
+                "rarity": "10 Editions | 0.90% Chance",
+                "ipfsPath": "https://bafybeifby762swxzgfqw7ft25gysqzjiuh34n7ee4dx2tf4mgspvttk5ze.ipfs.dweb.link/nft2.png"
             },
             {
                 "name": "nft3",
                 "description": "A picture of someone's iris",
                 "numberOfMints": 100,
-                "rarity": "100 Editions | 9.00% Chance"
+                "rarity": "100 Editions | 9.00% Chance",
+                "ipfsPath": "https://bafybeifby762swxzgfqw7ft25gysqzjiuh34n7ee4dx2tf4mgspvttk5ze.ipfs.dweb.link/nft3.png"
             },
             {
                 "name": "nft4",
                 "description": "An assortment of yummy snacks",
                 "numberOfMints": 1000,
-                "rarity": "1000 Editions | 90.01% Chance"
+                "rarity": "1000 Editions | 90.01% Chance",
+                "ipfsPath": "https://bafybeifby762swxzgfqw7ft25gysqzjiuh34n7ee4dx2tf4mgspvttk5ze.ipfs.dweb.link/nft4.png"
             }
         ],
         "banner": {
