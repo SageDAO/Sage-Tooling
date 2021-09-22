@@ -2,9 +2,9 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-  shadowDatabaseUrl = env("SHADOW_DATABASE_URL") 
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 generator client {
@@ -12,29 +12,48 @@ generator client {
 }
 
 model Nft {
-  id Int @id @default(autoincrement())
-  name String @db.Text
-  description String @db.Text
-  rarity String @db.Text
-  ipfsPath String @db.Text
-  drop Drop @relation(fields: [dropId], references: [id])
-  dropId Int 
+  id                Int     @id @default(autoincrement())
+  name              String  @db.Text
+  description       String  @db.Text
+  rarity            String  @db.Text
+  ipfsPath          String  @db.Text
+  drop              Drop    @relation(fields: [dropId], references: [id])
+  dropId            Int
+  User              User?   @relation(fields: [userWalletAddress], references: [walletAddress])
+  userWalletAddress String? @db.VarChar(42)
 }
 
 model Drop {
-  id Int @id @default(autoincrement())
-  lotteryId Int
-  bannerImagePath String @db.Text
-  bannerImageName String @db.Text
-  metadataPath String @db.Text
-  costPerTicket Int
-  prizeIds Int[]
-  prizeMetadataCid String @db.Text
-  startTime String @db.Text
-  endTime String @db.Text
-  artistName String @db.Text
-  dropName String @db.Text
-  dropDescription String @db.Text
-  nfts Nft[] 
+  id                Int     @id @default(autoincrement())
+  lotteryId         Int
+  bannerImagePath   String  @db.Text
+  bannerImageName   String  @db.Text
+  metadataPath      String  @db.Text
+  costPerTicket     Int
+  prizes            Int
+  prizeMetadataCid  String  @db.Text
+  startTime         String  @db.Text
+  endTime           String  @db.Text
+  artistName        String  @db.Text
+  artist            User?   @relation(fields: [userWalletAddress], references: [walletAddress])
+  dropName          String  @db.Text
+  dropDescription   String  @db.Text
+  nfts              Nft[]
+  userWalletAddress String? @db.VarChar(42)
 }
 
+model User {
+  walletAddress String   @id @db.VarChar(42)
+  userName      String?
+  email         String   @unique
+  createdAt     DateTime @default(now())
+  role          Role     @default(USER)
+  favorites     Nft[]
+  Drop          Drop[]
+}
+
+enum Role {
+  USER
+  ARTIST
+  ADMIN
+}
