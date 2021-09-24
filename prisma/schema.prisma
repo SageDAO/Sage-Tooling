@@ -12,44 +12,40 @@ generator client {
 }
 
 model Nft {
-  id                Int     @id @default(autoincrement())
-  name              String  @db.Text
-  description       String  @db.Text
-  rarity            String  @db.Text
-  ipfsPath          String  @db.Text
-  drop              Drop    @relation(fields: [dropId], references: [id])
-  dropId            Int
-  User              User?   @relation(fields: [userWalletAddress], references: [walletAddress])
-  userWalletAddress String? @db.VarChar(42)
+  id          Int    @id @default(autoincrement())
+  name        String @db.Text
+  description String @db.Text
+  rarity      String @db.Text
+  ipfsPath    String @db.Text
+  drop        Drop   @relation(fields: [dropId], references: [id])
+  dropId      Int
+  users       User[] @relation("UserFavoriteNFT")
 }
 
 model Drop {
-  id                Int     @id @default(autoincrement())
-  lotteryId         Int
-  bannerImagePath   String  @db.Text
-  bannerImageName   String  @db.Text
-  metadataPath      String  @db.Text
-  costPerTicket     Int
-  prizes            Int
-  prizeMetadataCid  String  @db.Text
-  startTime         String  @db.Text
-  endTime           String  @db.Text
-  artistName        String  @db.Text
-  artist            User?   @relation(fields: [userWalletAddress], references: [walletAddress])
-  dropName          String  @db.Text
-  dropDescription   String  @db.Text
-  nfts              Nft[]
-  userWalletAddress String? @db.VarChar(42)
+  id               Int    @id @default(autoincrement())
+  lotteryId        Int
+  bannerImagePath  String @db.Text
+  bannerImageName  String @db.Text
+  metadataPath     String @db.Text
+  costPerTicket    Int
+  prizes           Int    @default(0)
+  prizeMetadataCid String @db.Text
+  startTime        String @db.Text
+  endTime          String @db.Text
+  artistName       String @db.Text
+  dropName         String @db.Text
+  dropDescription  String @db.Text
+  Nft              Nft[]
 }
 
 model User {
-  walletAddress String   @id @db.VarChar(42)
+  walletAddress String   @id @db.Char(42)
   userName      String?
-  email         String   @unique
+  email         String?  @unique
   createdAt     DateTime @default(now())
   role          Role     @default(USER)
-  favorites     Nft[]
-  Drop          Drop[]
+  favorites     Nft[]    @relation("UserFavoriteNFT")
 }
 
 enum Role {
