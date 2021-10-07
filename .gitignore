@@ -7,4 +7,5 @@ drops/
 crumbs/
 node_modules/
 keys.txt
-.DS_Store 
+.DS_Store
+.awsConfig.json

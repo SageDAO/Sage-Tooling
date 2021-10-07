@@ -11,6 +11,7 @@ import {packToStream} from 'ipfs-car/pack/stream';
 import path from 'path';
 import ora from 'ora';
 import chalk from 'chalk';
+import aws from 'aws-sdk';
 
 var args = process.argv.slice(2)
 const log = console.log;
@@ -25,7 +26,7 @@ let metadata = {};
 try {
     metadata = JSON.parse(fs.readFileSync(artistFilesPath + '/metadata.json', 'utf8'));
 } catch (err) {
-    log(chalk.red('cannto read drop for some reason...'), err);
+    log(chalk.red('Cannot read drop for some reason...'), err);
 }
 
 artist = metadata.artistName;
@@ -36,24 +37,34 @@ dropDir = artistDir + '/' + dropName;
 // setup nft storage client
 const nftStorageClient = new NFTStorage({ token: loadApiKey() });
 
+log(chalk.green("Loading AWS credentials."));
+
+aws.config.loadFromPath('./awsConfig.json');
+
+var s3 = new aws.S3({
+    params: {
+        Bucket: "memex-staging"
+    }
+});
+
 // make artist dir
 mkArtistDir(artistDir);
 
 // make drop dir
 mkDropDir(dropDir);
 
-// create totem
-//addTotem(artist);
-
 // staging files for subsequent processing
 stageDropFiles(artistFilesPath, dropDir);
 
-// create .CAR 
-//encar(dropDir, dropName);
+var fileWrappers = getDirFiles(dropDir, []);
+var files = [];
+fileWrappers.forEach(fw => files.push(fw.file));
 
-var files = getDirFiles(dropDir, []);
 log(chalk.blue(`Uploading ${dropDir} files to nft.storage.`));
 const dirCid = await uploadFiles(files);
+
+log(chalk.green(`Uploading ${dropDir} files to S3.`));
+uploadFilesS3("memex-staging", dirCid, fileWrappers);
 
 var drop = getDrop(dirCid, files);
 
@@ -80,8 +91,13 @@ prizes.forEach(prize => {
 });
 
 log(chalk.blue(`Uploading prize metadata for ${dropDir}`));
-var prizeFiles = getDirFiles(prizeBaseDir, []); 
+
+var prizeFileWrappers = getDirFiles(prizeBaseDir, []);
+var prizeFiles = [];
+prizeFileWrappers.forEach(pfw => prizeFiles.push(pfw.file));
+
 var prizeMetadataCid = await uploadFiles(prizeFiles);
+uploadFilesS3("memex-staging", prizeMetadataCid, prizeFileWrappers);
 
 drop.prizeMetadataCid = prizeMetadataCid;
 drop.prizeIds = prizeIds;
@@ -358,10 +374,39 @@ function getDirFiles(someDir, files) {
 function getFile(somePath, someFileName) {
     const filePath = somePath + '/' + someFileName;
     var data = fs.readFileSync(filePath);
-    return new File([data], someFileName, {type: 'application/json'});
+
+    var fileWrapper = {
+        'data': data,
+        'file': new File([data], someFileName, {type: 'application/json'})
+    };
+
+    return fileWrapper;
 }
 
 function isPic(data) {
     return false;
     //return isJpg(data) || isPng(data);
+}
+
+function uploadFilesS3(bucketName, albumName, fileWrappers) {
+    log(chalk.blue(`Uploading ${dropDir} files to S3.`));
+    var albumFileKey = encodeURIComponent(albumName) + "/";
+
+    fileWrappers.forEach((fw) => {
+        var fileKey = albumFileKey + fw.file._name;
+        
+        var params = {
+            Bucket: bucketName,
+            Key: fileKey,
+            Body: fw.data
+        };
+
+        s3.upload(params, function(err, data) {
+            if (err) {
+                log(chalk.red(`Unable to upload ${fw.file._name} from ${dropDir} to S3`), err);
+            } else {
+                log(chalk.blue(`Uploaded ${fw.file._name} from ${dropDir} to S3`));
+            }
+        });
+    });
 }
