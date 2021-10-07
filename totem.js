@@ -64,7 +64,7 @@ try {
     log(chalk.red("Something went wrong while adding metadata to drop..."), err);
 }
 
-log(chalk.green("Creating prize metadata..."));
+log(chalk.green(`Creating prize metadata for ${dropDir}`));
 var prizes = createPrizes(drop);
 
 const prizeBaseDir = "prizes/" + dirCid + "/";
@@ -79,7 +79,7 @@ prizes.forEach(prize => {
     counter++;
 });
 
-log(chalk.blue("Uploading prize metadata..."));
+log(chalk.blue(`Uploading prize metadata for ${dropDir}`));
 var prizeFiles = getDirFiles(prizeBaseDir, []); 
 var prizeMetadataCid = await uploadFiles(prizeFiles);
 
@@ -338,7 +338,7 @@ function createPrizes(drop) {
         });
     });
 
-    log(chalk.green("Created prizes."));
+    log(chalk.green(`Created prizes for ${dropDir}.`));
 
     return prizes;
 }
