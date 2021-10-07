@@ -2,6 +2,7 @@
   "type": "module",
   "dependencies": {
     "@prisma/client": "^3.0.2",
+    "chalk": "^4.1.2",
     "fs-extra": "^10.0.0",
     "got": "^11.8.2",
     "ipfs-car": "^0.5.4",
@@ -13,6 +14,7 @@
     "mmmagic": "^0.5.3",
     "nft.storage": "^3.0.1",
     "node-fetch": "npm:@achingbrain/node-fetch@^2.6.7",
+    "ora": "^6.0.1",
     "ts-node": "^10.2.1",
     "uuidv4": "^6.2.11"
   },

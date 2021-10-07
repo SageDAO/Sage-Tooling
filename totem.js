@@ -9,8 +9,11 @@ import fetch from 'node-fetch';
 import {CarReader, CarWriter} from '@ipld/car';
 import {packToStream} from 'ipfs-car/pack/stream';
 import path from 'path';
+import ora from 'ora';
+import chalk from 'chalk';
 
 var args = process.argv.slice(2)
+const log = console.log;
 var artistFilesPath = args[0]
 let artist;
 let dropName;
@@ -22,7 +25,7 @@ let metadata = {};
 try {
     metadata = JSON.parse(fs.readFileSync(artistFilesPath + '/metadata.json', 'utf8'));
 } catch (err) {
-    console.log('cannot read drop for some reason...', err);
+    log(chalk.red('cannto read drop for some reason...'), err);
 }
 
 artist = metadata.artistName;
@@ -46,21 +49,22 @@ mkDropDir(dropDir);
 stageDropFiles(artistFilesPath, dropDir);
 
 // create .CAR 
-encar(dropDir, dropName);
+//encar(dropDir, dropName);
 
 var files = getDirFiles(dropDir, []);
+log(chalk.blue(`Uploading ${dropDir} files to nft.storage.`));
 const dirCid = await uploadFiles(files);
 
 var drop = getDrop(dirCid, files);
 
 try {
-    console.log("Adding metadata to drop...");
+    log(chalk.green("Adding metadata to drop..."));
     hydrateDropMetadata(drop, dropDir + '/' + 'metadata.json');
 } catch (err) {
-    console.log("Something went wrong while adding metadata to drop ", err);
+    log(chalk.red("Something went wrong while adding metadata to drop..."), err);
 }
 
-console.log('generating prize metadata...');
+log(chalk.green("Creating prize metadata..."));
 var prizes = createPrizes(drop);
 
 const prizeBaseDir = "prizes/" + dirCid + "/";
@@ -75,20 +79,18 @@ prizes.forEach(prize => {
     counter++;
 });
 
-console.log('uploading prize metadata...');
+log(chalk.blue("Uploading prize metadata..."));
 var prizeFiles = getDirFiles(prizeBaseDir, []); 
 var prizeMetadataCid = await uploadFiles(prizeFiles);
-
-console.log('prize metadata can be found at cid ', prizeMetadataCid);
 
 drop.prizeMetadataCid = prizeMetadataCid;
 drop.prizeIds = prizeIds;
 
 fs.writeFile("drops/" + dirCid + ".json", JSON.stringify(drop), (err) => {
     if (err) {
-        console.log(err);
+        log(chalk.red(err));
     } else {
-        console.log('Saved drop.');
+        log(chalk.green(`Saved drops/${dirCid}.json.`));
     }
 });
 
@@ -96,38 +98,38 @@ function loadApiKey() {
     try {
         return fs.readFileSync('keys.txt', 'utf-8');
     } catch (err) {
-        console.log('Unable to load api key', err);
+        log(chalk.red("Unable to load api key."), err);
         return "";
     }
 }
 
 function mkArtistDir(artistDir) {
-    console.log(`Creating ${artist}/ directory...`);
+    log(chalk.gray(`Creating ${artist}/ directory...`))
 
     fs.mkdir(artistDir, { recursive: true }, (err) => {
         if (err) {
-            console.log(err);
+            log(chalk.red(err));
         } else {
-            console.log(`Created ${artist}/ directory.`);
+            log(chalk.green(`Created ${artist}/ directory.`));
         }
     });
 }
 
 function mkDropDir(dropDir) {
-    console.log(`Creating ${dropDir}/ directory...`);
+    log(chalk.gray(`Creating ${dropDir}/ directory...`));
 
     fs.mkdir(dropDir, { recursive: true }, (err) => {
         if (err) {
-            console.log(err);
+            log(chalk.red(err));
         } else {
-            console.log(`'Created ${dropDir}/ directory.`);
+            log(chalk.green(`'Created ${dropDir}/ directory.`));
         }
     });
 }
 
 // The totem is for forcing uniqueness for uploading repeatedly with a single test drop.
 function addTotem(artist) {
-    console.log('Creating totem...');
+    log(chalk.gray("Creating totem..."));
 
     var totem = {
         'artist': artist,
@@ -136,23 +138,22 @@ function addTotem(artist) {
 
     var totemAsJson = JSON.stringify(totem);
     var totemPath = dropDir + '/totem.json';
-    console.log('totem path , ', totemPath);
 
     try {
         fs.writeFileSync(totemPath, totemAsJson, { flag: 'w+' });
-        console.log('wrote totem...');
+        log(chalk.green("Created totem."));
     } catch (err) {
-        console.log('unable to write totem ', err);
+        log(chalk.red("Unable to create totem."), err);
     }
 }
 
 function stageDropFiles(artistFilesPath, dropDir) {
-    console.log(`Moving ${artistFilesPath} into ${dropDir}`);
+    log(chalk.gray(`Moving ${artistFilesPath} into ${dropDir}`));
     fs.copySync(artistFilesPath, dropDir);
 }
 
 function encar(dropDir, dropName) {
-    console.log(`Archiving ${dropDir} as a .CAR...`);
+    log(chalk.gray(`Archiving ${dropDir} as a .CAR...`));
     const pathToCar = dropDir + '/' + dropName + '.car';
 
     packToFs({
@@ -182,9 +183,7 @@ async function uploadCar(carPath) {
         buffer = readable.read();
     });
 
-    console.log('size of buffer ', buffer.length);
-
-    nftStorageClient.storeCar(buffer).catch(e => console.log(e));
+    nftStorageClient.storeCar(buffer).catch(e => log(chalk.red(e)));
 }
 
 async function decar(url) {
@@ -197,7 +196,7 @@ async function decar(url) {
             files.push(file);
         }
     } catch (excp) {
-        console.log(excp);
+        log(chalk.red(excp));
     } 
 
     var reader = await CarReader.fromBytes(files[1].node);
@@ -208,21 +207,19 @@ async function decar(url) {
             const path = "car-practice/";
 
             fs.mkdir(path, (err) => {
-                console.info('something went wrong making a dir', err);
+                log(chalk.red("Something went wrong while making a directory to decar into."), err);
             });
 
             if (isPic(num.bytes)) {
                 fs.writeFile(path + uuid() + "img.png", num.bytes, (err) => {
                     if (err) {
-                        console.log('something went wrong');
-                        console.log(err);
+                        log(chalk.red(err));
                     }
                 });
             } else {
                 fs.writeFile(path + uuid() + "data.png", num.bytes, (err) => {
                     if (err) {
-                        console.log('something went wrong');
-                        console.log(err);
+                        log(chalk.red(err));
                     }
                 });
             }
@@ -236,7 +233,7 @@ async function uploadFiles(files) {
 }
 
 function getDrop(dirCid, files) {
-    console.log(`Generating drop for ${dirCid}`);
+    log(chalk.gray(`Generating drop for ${dirCid}`));
     const contentsPath = 'https://' + dirCid + '.ipfs.dweb.link/';
 
     var drop = {
@@ -271,8 +268,7 @@ function getDrop(dirCid, files) {
             drop.totem = filePathInIpfs;
         }
     });
-
-    console.log('# of nfts in drop: ', drop.nfts.length);
+    
     return drop;
 }
 
@@ -290,7 +286,7 @@ function hydrateDropMetadata(drop, pathToMetadata) {
     drop.numberOfNftsInDrop = relevantMetadata.numberOfNftsInDrop;
 
     // add rarities 
-    console.log("Adding rarities");
+    log(chalk.gray("Adding rarities."));
     let mintsPerDrop = 0;
 
     drop.nfts.forEach(nft => {
@@ -321,12 +317,14 @@ function hydrateDropMetadata(drop, pathToMetadata) {
         });
     });
 
+    log(chalk.green("Added rarities."));
+
     drop.nfts = nftsWithRarity;
 }
 
 function createPrizes(drop) {
     let prizes = [];
-    console.log("Creating prizes for drop " + JSON.stringify(drop));
+    log(chalk.gray(`Creating prizes for drop ${JSON.stringify(drop)}`));
 
     drop.nfts.forEach(nft => {
         var nftName = nft.name.split('.')[0];
@@ -339,6 +337,8 @@ function createPrizes(drop) {
             'image': nft.path
         });
     });
+
+    log(chalk.green("Created prizes."));
 
     return prizes;
 }

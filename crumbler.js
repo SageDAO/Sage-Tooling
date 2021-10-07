@@ -1,7 +1,9 @@
 import fs from 'fs-extra';
 import path from 'path';
+import chalk from 'chalk';
 
 const args = process.argv.slice(2);
+const log = console.log;
 const action = args[0];
 
 if (action === 'crumbs') {
@@ -9,13 +11,13 @@ if (action === 'crumbs') {
 } else if (action === 'clean') {
     cleanDrops();
 } else {
-    console.log("Paramter not recognized. Currently supported actions are: ");
-    console.log("crumbs");
-    console.log("clean");
+    log(chalk.red("Parameter not recognized. Currently supported actions are: "));
+    log(chalk.gray("crumbs"));
+    log(chalk.gray("clean"));
 }
 
 function createDrops() {
-    console.log('Creating drops.json...');
+    log(chalk.gray("Creating drops.json"));
     let drops = [];
 
     fs.readdirSync("drops").forEach(file => {
@@ -23,7 +25,7 @@ function createDrops() {
             try {
                 var drop = JSON.parse(fs.readFileSync('drops/' + file, 'utf8'));
             } catch (err) {
-                console.log('cannot read drops/ for some reason...', err);
+                log(chalk.red("Cannot read drops/ for some reason."), err);
             }
 
             drops.push(drop);
@@ -34,42 +36,42 @@ function createDrops() {
 
     fs.writeFileSync("drops.json", asJson);
 
-    console.log('Created drops.json...');
+    log(chalk.green("Created drops.json"));
 }
 
 function cleanDrops() {
     fs.emptyDir("drops", (err) => {
         if (err) {
-            console.log("Couldn't delete drops/", err);
+            log(chalk.red("Couldn't delete drops/"), err);
         } else {
-            console.log("Deleted drops/");
+            log(chalk.magenta("Deleted drops/"));
         }
     });
 
     fs.emptyDir("artists", (err) => {
         if (err) {
-            console.log("Couldn't delete artists/", err);
+            log(chalk.red("Couldn't delete artists/"), err);
         } else {
-            console.log("Deleted artists/");
+            log(chalk.magenta("Deleted artists/"));
         }
     });
 
     fs.emptyDir("prizes", (err) => {
         if (err) {
-            console.log("Couldn't delete prizes/", err);
+            log(chalk.red("Couldn't delete prizes/"), err);
         } else {
-            console.log("Deleted prizes/");
+            log(chalk.magenta("Deleted prizes/"));
         }
     });
 
      try {
          if (fs.existsSync("drops.json")) {
             fs.rmSync("drops.json");
-            console.log("Deleted drops.json");
+            log(chalk.magenta("Deleted drops.json"));
          }
      } catch (err) {
          if (err) {
-             console.log("Couldn't delete drops.json...", err);
+             log(chalk.red("Couldn't delete drops.json"), err);
          }
      }
 }

@@ -1,18 +1,20 @@
 import fs from 'fs-extra';
 import { fork } from 'child_process';
+import chalk from 'chalk';
 
 const args = process.argv.slice(2);
 const dropsDir = args[0];
+const log = console.log;
 
 run(() => processData(dropsDir, () => finish()));
 
 function run(callback) {
-    console.log("Cleaning up previous run...");
+    log(chalk.yellow("Cleaning up previous run."));
 
     var child = fork("crumbler.js", ["clean"]);
 
     child.on('error', function(err) {
-        console.log('errrrr', err);
+        log(chalk.red(err));
     });
 
     child.on('exit', function (status) {
@@ -21,14 +23,14 @@ function run(callback) {
         }
 
         if (status !== 0) {
-            console.log('exit code: ', status);
+            log(chalk.red(`exit code ${status}`));
         }
     });
 }
 
 function processData(path, callback) {
-    console.log('gonna process data at ', path);
-
+    log(chalk.blueBright(`Processing contents of ${path}`));
+    
     const data = fs.readdirSync(dropsDir);
     let relevantDirs = [];
     
@@ -45,16 +47,16 @@ function processData(path, callback) {
         const dropPath = dropsDir + "/" + dropDir;
        
         if (fs.lstatSync(dropPath).isDirectory()) {
-            console.log(`Processing ${dropPath}...`);
+            log(chalk.blueBright(`Processing ${dropPath}`));
             var child = fork("totem.js", [dropPath]);
 
             child.on('error', function(err) {
-                console.log(`While processing ${dropPath}, error encountered: `, err);
+                log(chalk.red(`Error encountered while processing ${dropPath}`), err);
             });
 
             child.on('exit', function(status) {
                 if (status === 0) {
-                    console.log(`Finished processing ${dropPath}`);
+                    log(chalk.greenBright(`Finished processing ${dropPath}`));
                     counter--;
 
                     if (counter === 0) {
@@ -74,14 +76,13 @@ function finish() {
     var child = fork("crumbler.js", ["crumbs"]);
 
     child.on('error', function(err) {
-        console.log("Failed to generate crumbs, ", err);
+        log(chalk.red("Failed to generate crumbs."), err);
     });
 
     child.on('exit', function(status) {
-        if (status === 0) {
-            console.log(`Finished.`);
-        } else {
+        if (status !== 0) {
             console.log("something went wrong when generating breadcrumbtrail.json, status code: ", status);
+            log(chalk.red(`Something went wrong when generating drops.json, status code ${status}`));
         }
     });
 }
