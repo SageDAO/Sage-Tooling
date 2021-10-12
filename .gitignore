@@ -8,4 +8,5 @@ crumbs/
 node_modules/
 keys.txt
 .DS_Store
-.awsConfig.json
+awsConfig.json
+MemeX Artist Questions.txt
