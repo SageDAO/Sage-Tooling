@@ -13,7 +13,8 @@ async function save(drop) {
         name: nft.name,
         description: nft.description,
         rarity: nft.rarity,
-        ipfsPath: nft.ipfsPath
+        ipfsPath: nft.ipfsPath,
+        s3Path: nft.s3Path
       });
     });
 
@@ -24,14 +25,14 @@ async function save(drop) {
         bannerImageName: drop.banner.name,
         metadataPath: drop.metaDataPath,
         costPerTicket: drop.costPerTicket,
-        prizeIds: drop.prizeIds,
+        prizes: drop.prizes,
         prizeMetadataCid: drop.prizeMetadataCid,
         startTime: drop.startTime,
         endTime: drop.endTime,
         artistName: drop.artistName,
         dropName: drop.dropName,
         dropDescription: drop.dropDescription,
-        nfts: {
+        Nft: {
           createMany: {
             data: nftsAsData
           }
@@ -47,37 +48,6 @@ async function main() {
   const dropsAsData = [];
 
   for (const drop of dropsJson) {
-    let nftsAsData = [];
-
-    drop.nfts.forEach(nft => {
-      nftsAsData.push({
-        name: nft.name,
-        IpfsPath: nft.path
-      });
-    });
-
-    let dropData = {
-      lotteryId: drop.lotteryId,
-      bannerImagePath: drop.banner.path,
-      bannerImageName: drop.banner.name,
-      metadataPath: drop.metaDataPath,
-      costPerTicket: drop.costPerTicket,
-      prizeIds: drop.prizeIds,
-      prizeMetadataCid: drop.prizeMetadataCid,
-      startTime: drop.startTime,
-      endTime: drop.endTime,
-      artistName: drop.artistName,
-      dropName: drop.dropName,
-      dropDescription: drop.dropDescription,
-      nfts: {
-        createMany: {
-          data: nftsAsData
-        }
-      }
-    };
-
-    dropsAsData.push(dropData);
-
     const someDrop = await save(drop);
 
     console.log('someDrop was saved: ', someDrop);
@@ -87,9 +57,10 @@ async function main() {
 
   const drops = await prisma.drop.findMany({
     include: {
-      nfts: true
+      Nft: true
     }
   });
+
   console.log('drops: ', drops);
 
   prisma.$disconnect();

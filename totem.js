@@ -9,9 +9,12 @@ import fetch from 'node-fetch';
 import {CarReader, CarWriter} from '@ipld/car';
 import {packToStream} from 'ipfs-car/pack/stream';
 import path from 'path';
-import ora from 'ora';
 import chalk from 'chalk';
 import aws from 'aws-sdk';
+import dotenv from 'dotenv';
+
+// load .env variables
+dotenv.config();
 
 var args = process.argv.slice(2)
 const log = console.log;
@@ -100,7 +103,7 @@ var prizeMetadataCid = await uploadFiles(prizeFiles);
 uploadFilesS3("memex-staging", prizeMetadataCid, prizeFileWrappers);
 
 drop.prizeMetadataCid = prizeMetadataCid;
-drop.prizeIds = prizeIds;
+drop.prizes = prizeIds.length;
 
 fs.writeFile("drops/" + dirCid + ".json", JSON.stringify(drop), (err) => {
     if (err) {
@@ -250,20 +253,23 @@ async function uploadFiles(files) {
 
 function getDrop(dirCid, files) {
     log(chalk.gray(`Generating drop for ${dirCid}`));
-    const contentsPath = 'https://' + dirCid + '.ipfs.dweb.link/';
+    const ipfsContentsPath = 'https://' + dirCid + '.ipfs.dweb.link/';
+    const s3ContentsPath = process.env.S3_BASE_URL + "/" + dirCid + "/";
 
     var drop = {
         'nfts': []
     };
 
     files.forEach(f => {
-        const filePathInIpfs = contentsPath + f.name;
+        const filePathInIpfs = ipfsContentsPath + f.name;
+        const filePathInS3 = s3ContentsPath + f.name;
         const fileName = f.name;
         const name = f.name.split('.')[0];
 
         if (f.name.includes("nft")) {
             drop.nfts.push({
                 'ipfsPath': filePathInIpfs,
+                's3Path': filePathInS3,
                 'fileName': fileName,
                 "name": name
             });
@@ -329,7 +335,8 @@ function hydrateDropMetadata(drop, pathToMetadata) {
             'description': relevantEntryInMetadata.description,
             'numberOfMints': numberOfMints,
             'rarity': rarity,
-            'ipfsPath': nft.ipfsPath
+            'ipfsPath': nft.ipfsPath,
+            's3Path': nft.s3Path
         });
     });
 

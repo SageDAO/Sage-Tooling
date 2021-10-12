@@ -17,6 +17,7 @@ model Nft {
   description String @db.Text
   rarity      String @db.Text
   ipfsPath    String @db.Text
+  s3Path      String @db.Text
   drop        Drop   @relation(fields: [dropId], references: [id])
   dropId      Int
   users       User[] @relation("UserFavoriteNFT")
