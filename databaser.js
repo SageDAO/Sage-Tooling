@@ -21,9 +21,11 @@ async function save(drop) {
     const someDrop = await prisma.drop.create({
       data: {
         lotteryId: drop.lotteryId,
-        bannerImagePath: drop.banner.path,
+        bannerImageIpfsPath: drop.banner.ipfsPath,
+        bannerImageS3Path: drop.banner.s3Path,
         bannerImageName: drop.banner.name,
-        metadataPath: drop.metaDataPath,
+        metadataIpfsPath: drop.metadataIpfsPath,
+        metadataS3Path: drop.metadataS3Path,
         costPerTicket: drop.costPerTicket,
         prizes: drop.prizes,
         prizeMetadataCid: drop.prizeMetadataCid,
@@ -45,7 +47,6 @@ async function save(drop) {
 
 async function main() {
   const dropsJson = JSON.parse(fs.readFileSync('drops.json', 'utf8'));
-  const dropsAsData = [];
 
   for (const drop of dropsJson) {
     const someDrop = await save(drop);

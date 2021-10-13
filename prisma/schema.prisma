@@ -26,9 +26,11 @@ model Nft {
 model Drop {
   id               Int    @id @default(autoincrement())
   lotteryId        Int
-  bannerImagePath  String @db.Text
+  bannerImageIpfsPath String @db.Text
+  bannerImageS3Path String @db.Text
   bannerImageName  String @db.Text
-  metadataPath     String @db.Text
+  metadataIpfsPath String @db.Text
+  metadataS3Path String @db.Text
   costPerTicket    Int
   prizes           Int    @default(0)
   prizeMetadataCid String @db.Text

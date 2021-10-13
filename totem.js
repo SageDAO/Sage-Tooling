@@ -275,19 +275,24 @@ function getDrop(dirCid, files) {
             });
         } else if (f.name.includes("banner")) {
             drop.banner = {
-                'path': filePathInIpfs,
+                'ipfsPath': filePathInIpfs,
+                's3Path': filePathInS3,
                 'fileName': fileName,
                 'name': name
             };
 
-            drop.bannerImagePath = filePathInIpfs;
+            drop.bannerImageIpfsPath = filePathInIpfs;
+            drop.bannerImageS3Path = filePathInS3;
             drop.bannerImageName = name;
         } else if (f.name.includes(".car")) {
-            drop.car = filePathInIpfs;
+            drop.carIpfsPath = filePathInIpfs;
+            drop.carS3Path = filePathInS3;
         } else if (f.name.includes("metadata")) {
-            drop.metaDataPath = filePathInIpfs;
+            drop.metadataIpfsPath = filePathInIpfs;
+            drop.metadataS3Path = filePathInS3;
         } else if (f.name.includes("totem")) {
-            drop.totem = filePathInIpfs;
+            drop.totemIpfsPath = filePathInIpfs;
+            drop.totemS3Path = filePathInS3;
         }
     });
     
