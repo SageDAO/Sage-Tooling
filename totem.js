@@ -16,6 +16,8 @@ import dotenv from 'dotenv';
 // load .env variables
 dotenv.config();
 
+const s3Bucket = process.env.S3_BUCKET;
+
 var args = process.argv.slice(2)
 const log = console.log;
 var artistFilesPath = args[0]
@@ -46,7 +48,7 @@ aws.config.loadFromPath('./awsConfig.json');
 
 var s3 = new aws.S3({
     params: {
-        Bucket: "memex-staging"
+        Bucket: s3Bucket
     }
 });
 
@@ -67,7 +69,7 @@ log(chalk.blue(`Uploading ${dropDir} files to nft.storage.`));
 const dirCid = await uploadFiles(files);
 
 log(chalk.green(`Uploading ${dropDir} files to S3.`));
-uploadFilesS3("memex-staging", dirCid, fileWrappers);
+uploadFilesS3(s3Bucket, dirCid, fileWrappers);
 
 var drop = getDrop(dirCid, files);
 
