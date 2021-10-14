@@ -24,22 +24,31 @@ model Nft {
 }
 
 model Drop {
-  id               Int    @id @default(autoincrement())
-  lotteryId        Int
+  id                  Int    @id @default(autoincrement())
+  lotteryId           Int
   bannerImageIpfsPath String @db.Text
-  bannerImageS3Path String @db.Text
-  bannerImageName  String @db.Text
-  metadataIpfsPath String @db.Text
-  metadataS3Path String @db.Text
-  costPerTicket    Int
-  prizes           Int    @default(0)
-  prizeMetadataCid String @db.Text
-  startTime        String @db.Text
-  endTime          String @db.Text
-  artistName       String @db.Text
-  dropName         String @db.Text
-  dropDescription  String @db.Text
-  Nft              Nft[]
+  bannerImageS3Path   String @db.Text
+  bannerImageName     String @db.Text
+  metadataIpfsPath    String @db.Text
+  metadataS3Path      String @db.Text
+  costPerTicket       Int
+  prizes              Int    @default(0)
+  prizeMetadataCid    String @db.Text
+  startTime           String @db.Text
+  endTime             String @db.Text
+  artistName          String @db.Text
+  dropName            String @db.Text
+  dropDescription     String @db.Text
+  Nft                 Nft[]
+}
+
+model Proof {
+  lotteryId     Int
+  winnerAddress String @db.Char(42)
+  prizeId       Int
+  proof         String @db.Text
+
+  @@id([lotteryId, winnerAddress, prizeId])
 }
 
 model User {
