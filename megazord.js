@@ -3,39 +3,69 @@ import { fork } from 'child_process';
 import chalk from 'chalk';
 
 const args = process.argv.slice(2);
-const dropsDir = args[0];
+const dataDir = args[0];
+const appendingDrop = args[1] === '--appendDrop' ? true : false;
 const log = console.log;
 
-run(() => processData(dropsDir, () => finish()));
-
-function run(callback) {
-    log(chalk.yellow("Cleaning up previous run."));
-
-    var child = fork("crumbler.js", ["clean"]);
-
-    child.on('error', function(err) {
-        log(chalk.red(err));
-    });
-
-    child.on('exit', function (status) {
-        if (status === 0) {
-            callback(dropsDir);
-        }
-
-        if (status !== 0) {
-            log(chalk.red(`exit code ${status}`));
-        }
-    });
+if (appendingDrop) {
+    run(() => processDrop(dataDir, () => finish()));
+} else {
+    run(() => processDrops(dataDir, () => finish()));
 }
 
-function processData(path, callback) {
+function run(callback) {
+    if (appendingDrop) {
+        log(chalk.yellow("Appending drop, so skipping cleanup phase."));
+
+        callback();
+    } else {
+        log(chalk.yellow("Cleaning up previous run."));
+
+        var child = fork("crumbler.js", ["clean"]);
+
+        child.on('error', function(err) {
+            log(chalk.red(err));
+        });
+
+        child.on('exit', function (status) {
+            if (status === 0) {
+                callback(dataDir);
+            }
+
+            if (status !== 0) {
+                log(chalk.red(`exit code ${status}`));
+            }
+        });
+    }
+}
+
+function processDrop(path, callback) {
+    if (fs.lstatSync(path).isDirectory()) {
+        log(chalk.blueBright(`Processing ${path}`));
+
+        var child = fork("totem.js", [path]);
+
+        child.on('error', function(err) {
+            log(chalk.red(`Error encountered while processing ${path}`), err);
+        });
+
+        child.on('exit', function(status) {
+            if (status === 0) {
+                log(chalk.greenBright(`Finished processing ${path}`));
+                callback();
+            }
+        });
+    }
+}
+
+function processDrops(path, callback) {
     log(chalk.blueBright(`Processing contents of ${path}`));
     
-    const data = fs.readdirSync(dropsDir);
+    const data = fs.readdirSync(dataDir);
     let relevantDirs = [];
     
     data.forEach(d => {
-        if (fs.lstatSync(dropsDir + "/" + d).isDirectory()) {
+        if (fs.lstatSync(dataDir + "/" + d).isDirectory()) {
             relevantDirs.push(d);
         }
     });
@@ -44,7 +74,7 @@ function processData(path, callback) {
     let done = false;
 
     data.forEach(dropDir => {
-        const dropPath = dropsDir + "/" + dropDir;
+        const dropPath = dataDir + "/" + dropDir;
        
         if (fs.lstatSync(dropPath).isDirectory()) {
             log(chalk.blueBright(`Processing ${dropPath}`));
@@ -73,15 +103,20 @@ function processData(path, callback) {
 }
 
 function finish() {
-    var child = fork("crumbler.js", ["crumbs"]);
+    let child;
+
+    if (appendingDrop) {
+        child = fork("crumbler.js", ["crumb"]);
+    } else {
+        child = fork("crumbler.js", ["crumbs"]);
+    }
 
     child.on('error', function(err) {
-        log(chalk.red("Failed to generate crumbs."), err);
+        log(chalk.red("Failed to generate drops file."), err);
     });
 
     child.on('exit', function(status) {
         if (status !== 0) {
-            console.log("something went wrong when generating breadcrumbtrail.json, status code: ", status);
             log(chalk.red(`Something went wrong when generating drops.json, status code ${status}`));
         }
     });

@@ -29,6 +29,7 @@ let dropDir;
 let metadata = {};
 
 try {
+    log(chalk.blueBright(`Processing contents of ${artistFilesPath}`))
     metadata = JSON.parse(fs.readFileSync(artistFilesPath + '/metadata.json', 'utf8'));
 } catch (err) {
     log(chalk.red('Cannot read drop for some reason...'), err);
@@ -84,7 +85,9 @@ log(chalk.green(`Creating prize metadata for ${dropDir}`));
 var prizes = createPrizes(drop);
 
 const prizeBaseDir = "prizes/" + dirCid + "/";
-fs.mkdirSync(prizeBaseDir);
+if (!fs.existsSync(prizeBaseDir)) {
+    fs.mkdirSync(prizeBaseDir);
+}
 
 var counter = 0;
 var prizeIds = [];
@@ -259,7 +262,8 @@ function getDrop(dirCid, files) {
     const s3ContentsPath = process.env.S3_BASE_URL + "/" + dirCid + "/";
 
     var drop = {
-        'nfts': []
+        'nfts': [],
+        'uniqueCid': dirCid
     };
 
     files.forEach(f => {
