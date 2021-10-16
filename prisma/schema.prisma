@@ -44,9 +44,10 @@ model Drop {
 
 model Proof {
   lotteryId     Int
-  winnerAddress String @db.Char(42)
+  winnerAddress String  @db.Char(42)
   prizeId       Int
-  proof         String @db.Text
+  proof         String  @db.Text
+  claimed       Boolean @default(false)
 
   @@id([lotteryId, winnerAddress, prizeId])
 }
