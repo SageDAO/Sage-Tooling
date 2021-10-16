@@ -1,6 +1,10 @@
 import fs from 'fs-extra';
-import path from 'path';
 import chalk from 'chalk';
+import pkg from '@prisma/client';
+
+const { PrismaClient } = pkg;
+
+const prisma = new PrismaClient();
 
 const args = process.argv.slice(2);
 const log = console.log;
@@ -8,6 +12,8 @@ const action = args[0];
 
 if (action === 'crumbs') {
     createDrops();
+} else if (action === 'crumb') {
+    appendDrop();
 } else if (action === 'clean') {
     cleanDrops();
 } else {
@@ -37,6 +43,85 @@ function createDrops() {
     fs.writeFileSync("drops.json", asJson);
 
     log(chalk.green("Created drops.json"));
+
+    saveDrops(drops);
+}
+
+function saveDrops(drops) {
+    log(chalk.blue("Saving drops to database."));
+
+    for (const drop of drops) {
+        saveDrop(drop);
+    }
+}
+
+function saveDrop(drop) {
+    let nftsAsData = [];
+
+    drop.nfts.forEach(nft => {
+        nftsAsData.push({
+          name: nft.name,
+          description: nft.description,
+          rarity: nft.rarity,
+          ipfsPath: nft.ipfsPath,
+          s3Path: nft.s3Path
+        });
+    });
+
+    const createDropRequest = prisma.drop.create({
+        data: {
+            lotteryId: drop.lotteryId,
+            bannerImageIpfsPath: drop.banner.ipfsPath,
+            bannerImageS3Path: drop.banner.s3Path,
+            bannerImageName: drop.banner.name,
+            metadataIpfsPath: drop.metadataIpfsPath,
+            metadataS3Path: drop.metadataS3Path,
+            costPerTicket: drop.costPerTicket,
+            prizes: drop.prizes,
+            prizeMetadataCid: drop.prizeMetadataCid,
+            startTime: drop.startTime,
+            endTime: drop.endTime,
+            artistName: drop.artistName,
+            dropName: drop.dropName,
+            dropDescription: drop.dropDescription,
+            Nft: {
+                createMany: {
+                data: nftsAsData
+                }
+            }
+        }
+    });
+
+    createDropRequest.then(savedDrop => {
+        log(chalk.green("Saved drop :", JSON.stringify(savedDrop)));
+    }, err => {
+        log(chalk.red("Unable to save drop..."), err);
+    });
+}
+
+function appendDrop() {
+    log(chalk.gray("Appending drop to drops.json"));
+
+    let dropsJson = JSON.parse(fs.readFileSync('drops.json', 'utf8'));
+    let existingDropDirCids = [];
+    let stagedDropDirCids = [];
+
+    dropsJson.forEach(drop => existingDropDirCids.push(drop.uniqueCid));
+
+    fs.readdirSync("drops/").forEach(file => {
+        stagedDropDirCids.push(file.split('.')[0]);
+    });
+
+    let deltaCid = stagedDropDirCids.filter(cid => !existingDropDirCids.includes(cid));
+
+    if (deltaCid.length > 1) {
+        log(chalk.red("There appears to be more than one drop waiting to be appended. Please provide manual review."));
+    } else if (deltaCid.length === 0) {
+        log(chalk.red("There is no drop waiting to be appended."));
+    } else {
+        var drop = JSON.parse(fs.readFileSync('drops/' + deltaCid[0] + '.json', 'utf8'));
+        saveDrop(drop);
+    }
 }
 
 function cleanDrops() {

@@ -16,6 +16,8 @@ import dotenv from 'dotenv';
 // load .env variables
 dotenv.config();
 
+const s3Bucket = process.env.S3_BUCKET;
+
 var args = process.argv.slice(2)
 const log = console.log;
 var artistFilesPath = args[0]
@@ -27,6 +29,7 @@ let dropDir;
 let metadata = {};
 
 try {
+    log(chalk.blueBright(`Processing contents of ${artistFilesPath}`))
     metadata = JSON.parse(fs.readFileSync(artistFilesPath + '/metadata.json', 'utf8'));
 } catch (err) {
     log(chalk.red('Cannot read drop for some reason...'), err);
@@ -46,7 +49,7 @@ aws.config.loadFromPath('./awsConfig.json');
 
 var s3 = new aws.S3({
     params: {
-        Bucket: "memex-staging"
+        Bucket: s3Bucket
     }
 });
 
@@ -67,7 +70,7 @@ log(chalk.blue(`Uploading ${dropDir} files to nft.storage.`));
 const dirCid = await uploadFiles(files);
 
 log(chalk.green(`Uploading ${dropDir} files to S3.`));
-uploadFilesS3("memex-staging", dirCid, fileWrappers);
+uploadFilesS3(s3Bucket, dirCid, fileWrappers);
 
 var drop = getDrop(dirCid, files);
 
@@ -82,7 +85,9 @@ log(chalk.green(`Creating prize metadata for ${dropDir}`));
 var prizes = createPrizes(drop);
 
 const prizeBaseDir = "prizes/" + dirCid + "/";
-fs.mkdirSync(prizeBaseDir);
+if (!fs.existsSync(prizeBaseDir)) {
+    fs.mkdirSync(prizeBaseDir);
+}
 
 var counter = 0;
 var prizeIds = [];
@@ -257,7 +262,8 @@ function getDrop(dirCid, files) {
     const s3ContentsPath = process.env.S3_BASE_URL + "/" + dirCid + "/";
 
     var drop = {
-        'nfts': []
+        'nfts': [],
+        'uniqueCid': dirCid
     };
 
     files.forEach(f => {
