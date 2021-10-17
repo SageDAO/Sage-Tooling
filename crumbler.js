@@ -102,11 +102,11 @@ function saveDrop(drop) {
 function appendDrop() {
     log(chalk.gray("Appending drop to drops.json"));
 
-    let dropsJson = JSON.parse(fs.readFileSync('drops.json', 'utf8'));
+    let drops = JSON.parse(fs.readFileSync('drops.json', 'utf8'));
     let existingDropDirCids = [];
     let stagedDropDirCids = [];
 
-    dropsJson.forEach(drop => existingDropDirCids.push(drop.uniqueCid));
+    drops.forEach(drop => existingDropDirCids.push(drop.uniqueCid));
 
     fs.readdirSync("drops/").forEach(file => {
         stagedDropDirCids.push(file.split('.')[0]);
@@ -121,6 +121,12 @@ function appendDrop() {
     } else {
         var drop = JSON.parse(fs.readFileSync('drops/' + deltaCid[0] + '.json', 'utf8'));
         saveDrop(drop);
+
+        log(chalk.green("Refreshing drops.json with the appended drop."));
+
+        drops.push(drop);
+        fs.rm('drops.json');
+        fs.writeFileSync("drops.json", JSON.stringify(drops));
     }
 }
 
