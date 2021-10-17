@@ -11,10 +11,6 @@ import {packToStream} from 'ipfs-car/pack/stream';
 import path from 'path';
 import chalk from 'chalk';
 import aws from 'aws-sdk';
-import dotenv from 'dotenv';
-
-// load .env variables
-dotenv.config();
 
 const s3Bucket = process.env.S3_BUCKET;
 
@@ -317,6 +313,7 @@ function hydrateDropMetadata(drop, pathToMetadata) {
     drop.dropName = relevantMetadata.dropName;
     drop.dropDescription = relevantMetadata.dropDescription;
     drop.numberOfNftsInDrop = relevantMetadata.numberOfNftsInDrop;
+    drop.tags = relevantMetadata.tags;
 
     // add rarities 
     log(chalk.gray("Adding rarities."));
@@ -333,7 +330,6 @@ function hydrateDropMetadata(drop, pathToMetadata) {
 
     drop.nfts.forEach(nft => {
         var nftName = nft.name.split('.')[0];
-
         var relevantEntryInMetadata = drop.metadata[nftName];
 
         const numberOfMints = relevantEntryInMetadata.numberOfMints;
@@ -347,7 +343,8 @@ function hydrateDropMetadata(drop, pathToMetadata) {
             'numberOfMints': numberOfMints,
             'rarity': rarity,
             'ipfsPath': nft.ipfsPath,
-            's3Path': nft.s3Path
+            's3Path': nft.s3Path,
+            'tags': relevantEntryInMetadata.tags
         });
     });
 

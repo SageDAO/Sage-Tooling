@@ -10,19 +10,23 @@
     "dropName": "otherArtistDrop",
     "dropDescription": "someDescription",
     "numberOfNftsInDrop": 3,
+    "tags": "otherArtist otherArtistDrop",
     "nft1": {
         "name": "Japanese town at night",
         "description": "A Japanese town at night",
-        "numberOfMints": 10
+        "numberOfMints": 10,
+        "tags": "Japanese town night"
     },
     "nft2": {
         "name": "Starry Sky",
         "description": "A vast starry sky",
-        "numberOfMints": 100
+        "numberOfMints": 100,
+        "tags": "starry sky"
     },
     "nft3": {
         "name": "Iris",
         "description": "A picture of someone's iris",
-        "numberOfMints": 1000
+        "numberOfMints": 1000,
+        "tags": "iris"
     }
 }

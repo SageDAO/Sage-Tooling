@@ -1,5 +1,7 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
 
 datasource db {
   provider          = "postgresql"
@@ -7,38 +9,36 @@ datasource db {
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
 model Nft {
   id          Int    @id @default(autoincrement())
-  name        String @db.Text
-  description String @db.Text
-  rarity      String @db.Text
-  ipfsPath    String @db.Text
-  s3Path      String @db.Text
-  drop        Drop   @relation(fields: [dropId], references: [id])
   dropId      Int
+  name        String
+  description String
+  rarity      String
+  ipfsPath    String
+  s3Path      String
+  tags        String
+  drop        Drop   @relation(fields: [dropId], references: [id])
   users       User[] @relation("UserFavoriteNFT")
 }
 
 model Drop {
   id                  Int    @id @default(autoincrement())
-  lotteryId           Int
-  bannerImageIpfsPath String @db.Text
-  bannerImageS3Path   String @db.Text
-  bannerImageName     String @db.Text
-  metadataIpfsPath    String @db.Text
-  metadataS3Path      String @db.Text
+  bannerImageName     String
+  artistName          String
   costPerTicket       Int
+  dropDescription     String
+  dropName            String
+  endTime             String
+  lotteryId           Int
+  prizeMetadataCid    String
+  startTime           String
   prizes              Int    @default(0)
-  prizeMetadataCid    String @db.Text
-  startTime           String @db.Text
-  endTime             String @db.Text
-  artistName          String @db.Text
-  dropName            String @db.Text
-  dropDescription     String @db.Text
+  bannerImageIpfsPath String
+  bannerImageS3Path   String
+  metadataIpfsPath    String
+  metadataS3Path      String
+  tags                String
   Nft                 Nft[]
 }
 
@@ -46,7 +46,7 @@ model Proof {
   lotteryId     Int
   winnerAddress String  @db.Char(42)
   prizeId       Int
-  proof         String  @db.Text
+  proof         String
   claimed       Boolean @default(false)
 
   @@id([lotteryId, winnerAddress, prizeId])

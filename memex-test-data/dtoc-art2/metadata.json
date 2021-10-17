@@ -10,14 +10,17 @@
     "dropName": "dtoc-drop2",
     "dropDescription": "someDescription",
     "numberOfNftsInDrop": 2,
+    "tags": "dtoc dtoc-drop2",
     "nft1": {
         "name": "Japanese town at night",
         "description": "A Japanese town at night",
-        "numberOfMints": 10
+        "numberOfMints": 10,
+        "tags": "Japanese town night"
     },
     "nft2": {
         "name": "Starry Sky",
         "description": "A vast starry sky",
-        "numberOfMints": 100
+        "numberOfMints": 100,
+        "tags": "starry sky"
     }
 }

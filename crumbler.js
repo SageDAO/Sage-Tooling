@@ -64,7 +64,8 @@ function saveDrop(drop) {
           description: nft.description,
           rarity: nft.rarity,
           ipfsPath: nft.ipfsPath,
-          s3Path: nft.s3Path
+          s3Path: nft.s3Path,
+          tags: nft.tags
         });
     });
 
@@ -84,9 +85,10 @@ function saveDrop(drop) {
             artistName: drop.artistName,
             dropName: drop.dropName,
             dropDescription: drop.dropDescription,
+            tags: drop.tags,
             Nft: {
                 createMany: {
-                data: nftsAsData
+                    data: nftsAsData
                 }
             }
         }

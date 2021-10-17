@@ -1,6 +1,10 @@
 import fs from 'fs-extra';
 import { fork } from 'child_process';
 import chalk from 'chalk';
+import dotenv from 'dotenv';
+
+// load .env variables
+dotenv.config();
 
 const args = process.argv.slice(2);
 const dataDir = args[0];

@@ -10,24 +10,29 @@
     "dropName": "dtoc-drop",
     "dropDescription": "someDescription",
     "numberOfNftsInDrop": 4,
+    "tags": "dtoc dtoc-drop",
     "nft1": {
         "name": "Japanese town at night",
         "description": "A Japanese town at night",
-        "numberOfMints": 1
+        "numberOfMints": 1,
+        "tags": "Japanese town night"
     },
     "nft2": {
         "name": "Starry Sky",
         "description": "A vast starry sky",
-        "numberOfMints": 10
+        "numberOfMints": 10,
+        "tags": "starry sky"
     },
     "nft3": {
         "name": "Iris",
         "description": "A picture of someone's iris",
-        "numberOfMints": 100
+        "numberOfMints": 100,
+        "tags": "iris"
     },
     "nft4": {
         "name": "Yummies",
         "description": "An assortment of yummy snacks",
-        "numberOfMints": 1000
+        "numberOfMints": 1000,
+        "tags": "snacks"
     }
 }
