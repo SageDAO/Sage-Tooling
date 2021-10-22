@@ -54,12 +54,12 @@ model PrizeProof {
 
 model Reward {
   address        String  @id @db.Char(42)
+  proof          String?
+  liquidityFTM   BigInt  @default(0)
   memeETH        BigInt  @default(0)
   memeFTM        BigInt  @default(0)
-  liquidityFTM   BigInt  @default(0)
-  snapshotTS     Int     @default(0)
   snapshotPoints BigInt  @default(0)
-  proof          String?
+  snapshotTS     Int     @default(0)
 }
 
 model User {
