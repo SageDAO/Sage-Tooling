@@ -43,7 +43,7 @@ LANGUAGE plpgsql
 AS
 $$
 DECLARE
-   points integer;
+   points bigint;
 BEGIN
 	SELECT
     "snapshotPoints" + ("memeFTM" + "memeETH") * 0.00001157407407 * 
