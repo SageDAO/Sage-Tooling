@@ -69,7 +69,6 @@ model RewardPublished {
   address           String @id @db.Char(42)
   totalPointsEarned BigInt @default(0)
   proof             String
-  merkleRoot        String
 }
 
 model RewardType {
