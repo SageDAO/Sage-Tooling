@@ -1,14 +1,24 @@
 import fs from 'fs-extra';
 import chalk from 'chalk';
 import pkg from '@prisma/client';
+import aws from 'aws-sdk';
 
 const { PrismaClient } = pkg;
 
 const prisma = new PrismaClient();
+const s3Bucket = process.env.S3_BUCKET;
 
 const args = process.argv.slice(2);
 const log = console.log;
 const action = args[0];
+
+aws.config.loadFromPath('./awsConfig.json');
+
+var s3 = new aws.S3({
+    params: {
+        Bucket: s3Bucket
+    }
+});
 
 if (action === 'crumbs') {
     createDrops();
@@ -43,6 +53,10 @@ function createDrops() {
     fs.writeFileSync("drops.json", asJson);
 
     log(chalk.green("Created drops.json"));
+
+    uploadDropsToS3().then(() => {
+        log(chalk.blue("Uploaded drops to S3."));
+    });
 
     saveDrops(drops);
 }
@@ -129,7 +143,76 @@ function appendDrop() {
         drops.push(drop);
         fs.rm('drops.json');
         fs.writeFileSync("drops.json", JSON.stringify(drops));
+
+        uploadDropsToS3().then(() => {
+            log(chalk.blue("Uploaded drops to S3."));
+        });
     }
+}
+
+async function uploadDropsToS3() {
+    log(chalk.blue('Updating currentDrops/ and previousDrops/'));
+
+    s3.deleteObject({
+        Bucket: s3Bucket,
+        Key: "previousDrops/drops.json"
+    }, function(err, response) {
+        if (err) {
+        log(chalk.red("Unable to delete previousDrops/drops.json."), err);
+        } else {
+        log(chalk.blue("Deleted previousDrops/drops.json"));
+        }
+    });
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    const destinationBucket = s3Bucket + "/previousDrops";
+    const sourceBucket = s3Bucket + "/currentDrops/drops.json";
+
+    s3.copyObject({
+        Bucket: destinationBucket,
+        CopySource: sourceBucket,
+        Key: "drops.json"
+    }, function (err, response) {
+        if (err) {
+        log(chalk.red("Unable to copy currentDrops/drops.json into /previousDrops"), err);
+        } else {
+        log(chalk.blue("Copied currentDrops/drops.json into previousDrops/"));
+        }
+    });
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    s3.deleteObject({
+        Bucket: s3Bucket,
+        Key: "currentDrops/drops.json"
+    }, function(err, response) {
+        if (err) {
+        log(chalk.red("Unable to delete currentDrops.drops.json..."), err);
+        } else {
+        log(chalk.blue("Deleted currentDrops/drops.json..."));
+        }
+    });
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    var data = fs.readFileSync("drops.json");
+
+    const uploadDestinationBucket = s3Bucket + "/currentDrops";
+
+    var params = {
+        Bucket: uploadDestinationBucket,
+        Key: "drops.json",
+        Body: data
+    };
+
+    s3.upload(params, function(err, data) {
+        if (err) {
+            log(chalk.red("Unable to upload drops.json to currentDrops/"), err);
+        } else {
+            log(chalk.blue("Uploaded drops.json to currentDrops/"));
+        }
+    });
 }
 
 function cleanDrops() {
