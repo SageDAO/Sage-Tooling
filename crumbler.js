@@ -26,6 +26,8 @@ if (action === 'crumbs') {
     appendDrop();
 } else if (action === 'clean') {
     cleanDrops();
+} else if (action === 'rollbackDrops') {
+    rollbackDrops();
 } else {
     log(chalk.red("Parameter not recognized. Currently supported actions are: "));
     log(chalk.gray("crumbs"));
@@ -250,4 +252,41 @@ function cleanDrops() {
              log(chalk.red("Couldn't delete drops.json"), err);
          }
      }
+}
+
+function rollbackDrops() {
+    log(chalk.blue("Rolling back to previousDrops/drops.json"));
+
+    var deleteObjectCommand = {
+        Bucket: s3Bucket,
+        Key: "currentDrops/drops.json"
+    };
+
+    s3.deleteObject(deleteObjectCommand, function(err, response) {
+        if (err) {
+            log(chalk.red("Unable to clear currentDrops/ to make room for previousDrops/. Rollback failed."), err);
+            return;
+        }
+
+        log(chalk.blue("Deleted currentDrops/drops.json"));
+        log({response});
+
+        const destinationBucket = s3Bucket + "/currentDrops";
+        const sourceBucket = s3Bucket + "/previousDrops/drops.json";
+
+        var copyObjectCommand = {
+            Bucket: destinationBucket,
+            CopySource: sourceBucket,
+            Key: "drops.json"
+        };
+
+        s3.copyObject(copyObjectCommand, function(err, response) {
+            if (err) {
+                log(chalk.red("Unable to move previousDrops/ into currentDrops/, rollback failed."), err);
+                return;
+            }
+
+            log(chalk.blue("Moved previousDrops/ into currentDrops/. Rollback succeeded, trigger a redeploy."));
+        })
+    });
 }
