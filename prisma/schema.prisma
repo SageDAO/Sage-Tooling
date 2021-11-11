@@ -19,7 +19,6 @@ model Nft {
   s3Path      String
   tags        String
   drop        Drop   @relation(fields: [dropId], references: [id])
-  users       User[] @relation("UserFavoriteNFT")
 }
 
 model Drop {
@@ -40,6 +39,7 @@ model Drop {
   metadataS3Path      String
   tags                String
   Nft                 Nft[]
+  User                User[]
 }
 
 model PrizeProof {
@@ -52,14 +52,29 @@ model PrizeProof {
   @@id([lotteryId, winnerAddress, prizeId])
 }
 
-model Reward {
-  address        String  @id @db.Char(42)
-  proof          String?
-  liquidityFTM   BigInt  @default(0)
-  memeETH        BigInt  @default(0)
-  memeFTM        BigInt  @default(0)
-  snapshotPoints BigInt  @default(0)
-  snapshotTS     Int     @default(0)
+model MemeTransactions {
+  blockNumber    Int
+  blockTimestamp Int
+  from           String    @db.Char(42)
+  to             String    @db.Char(42)
+  value          BigInt
+  assetType      AssetType
+  id             Int       @id @default(autoincrement())
+  txHash         String    @db.Char(66)
+
+  @@index([from, to])
+}
+
+model RewardPublished {
+  address           String @id @db.Char(42)
+  totalPointsEarned BigInt @default(0)
+  proof             String
+}
+
+model RewardType {
+  type            AssetType @id
+  rewardRate      Float     @default(0)
+  lastBlockNumber BigInt    @default(0)
 }
 
 model User {
@@ -68,7 +83,16 @@ model User {
   email         String?  @unique
   createdAt     DateTime @default(now())
   role          Role     @default(USER)
-  favorites     Nft[]    @relation("UserFavoriteNFT")
+  bio           String?  @db.VarChar(200)
+  Drop          Drop[]
+
+  @@index([walletAddress])
+}
+
+enum AssetType {
+  ETH_MEME
+  FTM_MEME
+  FTM_LIQ
 }
 
 enum Role {
