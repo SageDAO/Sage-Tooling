@@ -7,6 +7,14 @@ These are utilities needed to operate on the MemeX data layer.
 To use, you will need an nft.storage api key. Ask for mine or feel free to create your own if you prefer! 
 Once you have an api key, paste it into the first line of a file named keys.txt in the same directory as
 totem.js.
+You will also need an accessKeyId and secretAccessKey from IAM in AWS. Store those values inside a file named awsConfig.json in the root directory, with the structure:
+```
+{
+    "accessKeyId": "",
+    "secretAccessKey": "",
+    "region": "us-east-1"
+}
+
 
 You will also want to do ```npm install``` to install the dependencies in the package.json.
 
