@@ -1,6 +1,7 @@
 {
   "type": "module",
   "dependencies": {
+    "@pinata/sdk": "^1.1.23",
     "@prisma/client": "^3.3.0",
     "aws-sdk": "^2.1003.0",
     "chalk": "^4.1.2",

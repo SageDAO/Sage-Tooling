@@ -1,17 +1,20 @@
-import {uuid} from 'uuidv4';
+import { uuid } from 'uuidv4';
 import fs from 'fs-extra';
-import {NFTStorage, File} from 'nft.storage';
-import {packToFs} from 'ipfs-car/pack/fs';
-import {unpackStream} from 'ipfs-car/unpack';
-import {FsBlockStore} from 'ipfs-car/blockstore/fs';
-import {MemoryBlockStore} from 'ipfs-car/blockstore/memory';
+import { NFTStorage, File } from 'nft.storage';
+import { packToFs } from 'ipfs-car/pack/fs';
+import { unpackStream } from 'ipfs-car/unpack';
+import { FsBlockStore } from 'ipfs-car/blockstore/fs';
+import { MemoryBlockStore } from 'ipfs-car/blockstore/memory';
 import fetch from 'node-fetch';
-import {CarReader, CarWriter} from '@ipld/car';
-import {packToStream} from 'ipfs-car/pack/stream';
+import { CarReader, CarWriter } from '@ipld/car';
+import { packToStream } from 'ipfs-car/pack/stream';
 import path from 'path';
 import chalk from 'chalk';
 import aws from 'aws-sdk';
+import dotenv from 'dotenv';
+import pinataSDK from '@pinata/sdk';
 
+dotenv.config();
 const s3Bucket = process.env.S3_BUCKET;
 
 var args = process.argv.slice(2)
@@ -21,7 +24,7 @@ let artist;
 let dropName;
 let artistDir;
 let dropDir;
-
+let pinata;
 let metadata = {};
 
 try {
@@ -37,7 +40,7 @@ artistDir = 'artists/' + artist;
 dropDir = artistDir + '/' + dropName;
 
 // setup nft storage client
-const nftStorageClient = new NFTStorage({ token: loadApiKey() });
+const nftStorageClient = new NFTStorage({ token: process.env.NFT_STORAGE_KEY });
 
 log(chalk.green("Loading AWS credentials."));
 
@@ -64,6 +67,8 @@ fileWrappers.forEach(fw => files.push(fw.file));
 
 log(chalk.blue(`Uploading ${dropDir} files to nft.storage.`));
 const dirCid = await uploadFiles(files);
+await backupPinFiles(dirCid, dropName + '-images');
+
 
 log(chalk.green(`Uploading ${dropDir} files to S3.`));
 uploadFilesS3(s3Bucket, dirCid, fileWrappers);
@@ -101,6 +106,7 @@ var prizeFiles = [];
 prizeFileWrappers.forEach(pfw => prizeFiles.push(pfw.file));
 
 var prizeMetadataCid = await uploadFiles(prizeFiles);
+await backupPinFiles(prizeMetadataCid, dropName + '-metadata');
 uploadFilesS3("memex-staging", prizeMetadataCid, prizeFileWrappers);
 
 drop.prizeMetadataCid = prizeMetadataCid;
@@ -113,15 +119,6 @@ fs.writeFile("drops/" + dirCid + ".json", JSON.stringify(drop), (err) => {
         log(chalk.green(`Saved drops/${dirCid}.json.`));
     }
 });
-
-function loadApiKey() {
-    try {
-        return fs.readFileSync('keys.txt', 'utf-8');
-    } catch (err) {
-        log(chalk.red("Unable to load api key."), err);
-        return "";
-    }
-}
 
 function mkArtistDir(artistDir) {
     log(chalk.gray(`Creating ${artist}/ directory...`))
@@ -202,12 +199,11 @@ async function uploadCar(carPath) {
     readable.on('end', () => {
         buffer = readable.read();
     });
-
     nftStorageClient.storeCar(buffer).catch(e => log(chalk.red(e)));
 }
 
 async function decar(url) {
-    const response = await fetch(url, {method: 'POST'});
+    const response = await fetch(url, { method: 'POST' });
     const files = [];
     const blockstore = new MemoryBlockStore();
 
@@ -217,12 +213,12 @@ async function decar(url) {
         }
     } catch (excp) {
         log(chalk.red(excp));
-    } 
+    }
 
     var reader = await CarReader.fromBytes(files[1].node);
     var blocks = await reader.blocks();
 
-    for await (let num of blocks) {        
+    for await (let num of blocks) {
         if (num.bytes) {
             const path = "car-practice/";
 
@@ -251,6 +247,38 @@ async function uploadFiles(files) {
     const someResponse = await nftStorageClient.storeDirectory(files);
     return someResponse;
 }
+
+async function backupPinFiles(cid, dropName) {
+    if (process.env.PINATA_API_KEY != undefined) {
+        if (pinata == null) {
+            pinata = pinataSDK(process.env.PINATA_API_KEY, process.env.PINATA_API_SECRET);
+        }
+        const options = {
+            pinataMetadata: {
+                name: dropName,
+            },
+            pinataOptions: {
+                customPinPolicy: {
+                    regions: [
+                        {
+                            id: 'NYC1',
+                            desiredReplicationCount: 1
+                        }
+                    ]
+                }
+            }
+        };
+        log(chalk.gray(`Pinning CID ${cid} on Pinata`));
+        pinata.pinByHash(cid, options).then((result) => {
+            log(chalk.green(`Successfully pinned ${dropName} on Pinata.`));
+        }).catch((err) => {
+            log(chalk.red("Something went wrong while pinning CID on Pinata."), err);
+        });
+    } else {
+        log(chalk.red("Pinata API key not set. Skipping backup pinning."));
+    }
+}
+
 
 function getDrop(dirCid, files) {
     log(chalk.gray(`Generating drop for ${dirCid}`));
@@ -297,7 +325,7 @@ function getDrop(dirCid, files) {
             drop.totemS3Path = filePathInS3;
         }
     });
-    
+
     return drop;
 }
 
@@ -392,7 +420,7 @@ function getFile(somePath, someFileName) {
 
     var fileWrapper = {
         'data': data,
-        'file': new File([data], someFileName, {type: 'application/json'})
+        'file': new File([data], someFileName, { type: 'application/json' })
     };
 
     return fileWrapper;
@@ -409,14 +437,14 @@ function uploadFilesS3(bucketName, albumName, fileWrappers) {
 
     fileWrappers.forEach((fw) => {
         var fileKey = albumFileKey + fw.file._name;
-        
+
         var params = {
             Bucket: bucketName,
             Key: fileKey,
             Body: fw.data
         };
 
-        s3.upload(params, function(err, data) {
+        s3.upload(params, function (err, data) {
             if (err) {
                 log(chalk.red(`Unable to upload ${fw.file._name} from ${dropDir} to S3`), err);
             } else {
