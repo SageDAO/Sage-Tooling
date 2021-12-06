@@ -1,13 +1,5 @@
-import { uuid } from 'uuidv4';
 import fs from 'fs-extra';
 import { NFTStorage, File } from 'nft.storage';
-import { packToFs } from 'ipfs-car/pack/fs';
-import { unpackStream } from 'ipfs-car/unpack';
-import { FsBlockStore } from 'ipfs-car/blockstore/fs';
-import { MemoryBlockStore } from 'ipfs-car/blockstore/memory';
-import fetch from 'node-fetch';
-import { CarReader, CarWriter } from '@ipld/car';
-import { packToStream } from 'ipfs-car/pack/stream';
 import path from 'path';
 import chalk from 'chalk';
 import aws from 'aws-sdk';
