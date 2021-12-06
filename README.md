@@ -80,3 +80,19 @@ These would be Postgres connection strings from Heroku. You can request the conn
 
 Upon running it you'll see some output in the console letting you know that a connection is being established. If your data was added
 successfully, you'll see it outputted in the console as well after a successful query to get back what was saved.
+
+## Changing Lambdas
+
+Ex: Say you make a change to UpdatingMemeInuBalancePackage. First you need to run the zip command. On Mac, from the same directory as
+the index.js file you would run:
+
+```zip -r updatingMemeInuBalancePackage.zip .```
+
+Then you would update the Lambda from the terminal with:
+
+```aws lambda update-function-code --function-name testing --zip-file fileb://updatingMemeInuBalancePackage.zip```
+
+After that is done executing, you should be able to run the updated Lambda. For more guidance on how to update and deploy Lambdas,
+check out: 
+
+https://docs.aws.amazon.com/lambda/latest/dg/nodejs-package.html
