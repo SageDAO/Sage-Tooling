@@ -144,26 +144,6 @@ function mkDropDir(dropDir) {
     });
 }
 
-// The totem is for forcing uniqueness for uploading repeatedly with a single test drop.
-function addTotem(artist) {
-    log(chalk.gray("Creating totem..."));
-
-    var totem = {
-        'artist': artist,
-        'uuid': uuid()
-    };
-
-    var totemAsJson = JSON.stringify(totem);
-    var totemPath = dropDir + '/totem.json';
-
-    try {
-        fs.writeFileSync(totemPath, totemAsJson, { flag: 'w+' });
-        log(chalk.green("Created totem."));
-    } catch (err) {
-        log(chalk.red("Unable to create totem."), err);
-    }
-}
-
 function stageDropFiles(artistFilesPath, dropDir) {
     log(chalk.gray(`Moving ${artistFilesPath} into ${dropDir}`));
     fs.copySync(artistFilesPath, dropDir);
@@ -180,67 +160,6 @@ function encar(dropDir, dropName) {
     });
 
     return pathToCar;
-}
-
-async function uploadCar(carPath) {
-    const writable = fs.createWriteStream(carPath);
-
-    await packToStream({
-        input: dropDir,
-        writable,
-        blockstore: new FsBlockStore()
-    });
-
-    writable.end();
-
-    const readable = fs.createReadStream(carPath);
-    let buffer = [];
-
-    readable.on('end', () => {
-        buffer = readable.read();
-    });
-    nftStorageClient.storeCar(buffer).catch(e => log(chalk.red(e)));
-}
-
-async function decar(url) {
-    const response = await fetch(url, { method: 'POST' });
-    const files = [];
-    const blockstore = new MemoryBlockStore();
-
-    try {
-        for await (const file of unpackStream(response.body, { blockstore })) {
-            files.push(file);
-        }
-    } catch (excp) {
-        log(chalk.red(excp));
-    }
-
-    var reader = await CarReader.fromBytes(files[1].node);
-    var blocks = await reader.blocks();
-
-    for await (let num of blocks) {
-        if (num.bytes) {
-            const path = "car-practice/";
-
-            fs.mkdir(path, (err) => {
-                log(chalk.red("Something went wrong while making a directory to decar into."), err);
-            });
-
-            if (isPic(num.bytes)) {
-                fs.writeFile(path + uuid() + "img.png", num.bytes, (err) => {
-                    if (err) {
-                        log(chalk.red(err));
-                    }
-                });
-            } else {
-                fs.writeFile(path + uuid() + "data.png", num.bytes, (err) => {
-                    if (err) {
-                        log(chalk.red(err));
-                    }
-                });
-            }
-        }
-    }
 }
 
 async function uploadFiles(files) {
