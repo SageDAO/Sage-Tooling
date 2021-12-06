@@ -149,19 +149,6 @@ function stageDropFiles(artistFilesPath, dropDir) {
     fs.copySync(artistFilesPath, dropDir);
 }
 
-function encar(dropDir, dropName) {
-    log(chalk.gray(`Archiving ${dropDir} as a .CAR...`));
-    const pathToCar = dropDir + '/' + dropName + '.car';
-
-    packToFs({
-        input: dropDir,
-        output: pathToCar,
-        blockstore: new FsBlockStore()
-    });
-
-    return pathToCar;
-}
-
 async function uploadFiles(files) {
     const someResponse = await nftStorageClient.storeDirectory(files);
     return someResponse;
@@ -343,11 +330,6 @@ function getFile(somePath, someFileName) {
     };
 
     return fileWrapper;
-}
-
-function isPic(data) {
-    return false;
-    //return isJpg(data) || isPng(data);
 }
 
 function uploadFilesS3(bucketName, albumName, fileWrappers) {
