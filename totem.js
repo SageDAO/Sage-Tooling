@@ -231,7 +231,7 @@ function hydrateDropMetadata(drop, pathToMetadata) {
     const relevantMetadata = JSON.parse(fs.readFileSync(pathToMetadata, 'utf8'));
     drop.metadata = relevantMetadata;
 
-    drop.lotteryId = relevantMetadata.lotteryId; // this will come from Dante's script, setting to this for testing purposes
+    drop.lotteryId = relevantMetadata.lotteryId; // this is just for testing purposes, the real value gets backfilled into the database after the lottery gets created and deployed
     drop.costPerTicket = relevantMetadata.costPerTicket;
     drop.startTime = relevantMetadata.startTime;
     drop.endTime = relevantMetadata.endTime;
