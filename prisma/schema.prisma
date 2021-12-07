@@ -41,13 +41,14 @@ model Drop {
   approvedAt                   DateTime?
   approvedBy                   String?   @db.Char(42)
   blockchainCreatedAt          DateTime?
-  createdAt                    DateTime  @default(now())
-  royaltyPercentage            Float     @default(0.0)
-  createdBy                    String    @db.Char(42)
-  defaultPrizeId               Int?
   costPerTicketCoins           Float     @default(0.0)
   costPerTicketPoints          BigInt    @default(0)
+  createdAt                    DateTime  @default(now())
+  createdBy                    String    @db.Char(42)
+  defaultPrizeId               Int?
   maxParticipants              Int       @default(0)
+  royaltyPercentage            Float     @default(0.0)
+  isLive                       Boolean   @default(false)
   User_Drop_approvedByToUser   User?     @relation("Drop_approvedByToUser", fields: [approvedBy], references: [walletAddress])
   User_Drop_createdByToUser    User      @relation("Drop_createdByToUser", fields: [createdBy], references: [walletAddress])
   Nft_Drop_defaultPrizeIdToNft Nft?      @relation("Drop_defaultPrizeIdToNft", fields: [defaultPrizeId], references: [id])
@@ -103,6 +104,7 @@ model User {
   createdAt                  DateTime @default(now())
   role                       Role     @default(USER)
   bio                        String?  @db.VarChar(200)
+  profilePicture             String?
   Drop_Drop_approvedByToUser Drop[]   @relation("Drop_approvedByToUser")
   Drop_Drop_createdByToUser  Drop[]   @relation("Drop_createdByToUser")
   Drop_userFavoriteDrops     Drop[]   @relation("userFavoriteDrops")
