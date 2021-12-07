@@ -3,10 +3,12 @@
     "entryFee": 1,
     "lotteryId": 345,
     "lotSize": 2,
-    "costPerTicket": 1,
-    "startTime": "1628604156000",
-    "endTime": "1628690556000",
+    "costPerTicketCoins": 1,
+    "costPerTicketPoints": 1,
+    "startTime": "1638766800",
+    "endTime": "1640408400",
     "artistName": "dtoc",
+    "bannerImageName": "ummmm",
     "dropName": "dtoc-drop2",
     "dropDescription": "someDescription",
     "numberOfNftsInDrop": 2,
@@ -22,5 +24,6 @@
         "description": "A vast starry sky",
         "numberOfMints": 100,
         "tags": "starry sky"
-    }
+    },
+    "walletAddress": "567"
 }

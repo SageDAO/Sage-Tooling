@@ -3,10 +3,12 @@
     "entryFee": 1,
     "lotteryId": 123,
     "lotSize": 2,
-    "costPerTicket": 1,
-    "startTime": "1628886889000",
-    "endTime": "1628973289000",
+    "costPerTicketCoins": 1,
+    "costPerTicketPoints": 1,
+    "startTime": "1638766800",
+    "endTime": "1640408400",
     "artistName": "anArtist",
+    "bannerImageName": "some banner image",
     "dropName": "anArtistDrop",
     "dropDescription": "someDescription",
     "numberOfNftsInDrop": 5,
@@ -40,5 +42,6 @@
         "description": "A Deer or an antelope?",
         "numberOfMints": 10000,
         "tags": "deer antelope"
-    }
+    },
+    "walletAddress": "74776"
 }

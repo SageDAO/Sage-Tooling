@@ -3,10 +3,12 @@
     "entryFee": 1,
     "lotteryId": 456,
     "lotSize": 2,
-    "costPerTicket": 1,
-    "startTime": "1628604156000",
-    "endTime": "1629146089000",
+    "costPerTicketCoins": 1,
+    "costPerTicketPoints": 1,
+    "startTime": "1638766800",
+    "endTime": "1640408400",
     "artistName": "otherArtist",
+    "bannerImageName": "hello this is a banner image",
     "dropName": "otherArtistDrop",
     "dropDescription": "someDescription",
     "numberOfNftsInDrop": 3,
@@ -28,5 +30,6 @@
         "description": "A picture of someone's iris",
         "numberOfMints": 1000,
         "tags": "iris"
-    }
+    },
+    "walletAddress": "678"
 }
