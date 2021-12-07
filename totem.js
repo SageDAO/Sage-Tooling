@@ -7,11 +7,24 @@ import dotenv from 'dotenv';
 import pinataSDK from '@pinata/sdk';
 import { uuid } from 'uuidv4';
 
+const log = console.log;
+
+log(chalk.green("Loading AWS credentials."));
+aws.config.loadFromPath('./awsConfig.json');
+
 dotenv.config();
 const s3Bucket = process.env.S3_BUCKET;
 
+const dynamoDb = new aws.DynamoDB({apiVersion: '2012-08-10'});
+const dynamoDocumentClient = new aws.DynamoDB.DocumentClient();
+
+var s3 = new aws.S3({
+    params: {
+        Bucket: s3Bucket
+    }
+});
+
 var args = process.argv.slice(2)
-const log = console.log;
 var artistFilesPath = args[0]
 let artist;
 let dropName;
@@ -34,16 +47,6 @@ dropDir = artistDir + '/' + dropName;
 
 // setup nft storage client
 const nftStorageClient = new NFTStorage({ token: process.env.NFT_STORAGE_KEY });
-
-log(chalk.green("Loading AWS credentials."));
-
-aws.config.loadFromPath('./awsConfig.json');
-
-var s3 = new aws.S3({
-    params: {
-        Bucket: s3Bucket
-    }
-});
 
 // make artist dir
 mkArtistDir(artistDir);
@@ -83,13 +86,14 @@ if (!fs.existsSync(prizeBaseDir)) {
     fs.mkdirSync(prizeBaseDir);
 }
 
-var counter = 0;
 var prizeIds = [];
+var prizeIdCounter = await getPrizeId(prizes.length);
+log(chalk.green("Desired prize id: " + prizeIdCounter));
 
 prizes.forEach(prize => {
-    prizeIds.push(counter);
-    fs.writeFileSync(prizeBaseDir + counter + ".json", JSON.stringify(prize));
-    counter++;
+    prizeIds.push(prizeIdCounter);
+    fs.writeFileSync(prizeBaseDir + prizeIdCounter + ".json", JSON.stringify(prize));
+    prizeIdCounter++;
 });
 
 log(chalk.blue(`Uploading prize metadata for ${dropDir}`));
@@ -99,6 +103,7 @@ var prizeFiles = [];
 prizeFileWrappers.forEach(pfw => prizeFiles.push(pfw.file));
 
 var prizeMetadataCid = await uploadFiles(prizeFiles);
+log(chalk.yellowBright(`prizeMetadataCid after uploading prize files is ${prizeMetadataCid}`));
 await backupPinFiles(prizeMetadataCid, dropName + '-metadata');
 uploadFilesS3("memex-staging", prizeMetadataCid, prizeFileWrappers);
 
@@ -141,6 +146,52 @@ function mkDropDir(dropDir) {
 function stageDropFiles(artistFilesPath, dropDir) {
     log(chalk.gray(`Moving ${artistFilesPath} into ${dropDir}`));
     fs.copySync(artistFilesPath, dropDir);
+}
+
+async function getPrizeId(numberOfPrizes) {
+    let somePrizeId = 0;
+
+    const getParams = {
+        TableName: 'memex-tooling-metadata',
+        Key: {
+          'variableName': "prizeIdCounter"
+        }
+    };
+
+    try {
+        const someResponse = await dynamoDocumentClient.get(getParams).promise();
+        somePrizeId = JSON.parse(someResponse.Item.value);
+    } catch (err) {
+        log(chalk.red("Something went wrong while trying to talk to dynamo... " + err));
+    }
+
+    log(chalk.yellowBright(`type of ${somePrizeId} is ${typeof somePrizeId} and type of ${numberOfPrizes} is ${typeof numberOfPrizes}`))
+    log(chalk.yellowBright(`Adding ${somePrizeId} and ${numberOfPrizes}`))
+
+    const targetPrizeId = somePrizeId + numberOfPrizes;
+
+    const putParams = {
+        TableName: 'memex-tooling-metadata',
+        Item: {
+            'variableName': {S: "prizeIdCounter"},
+            'value': {S: targetPrizeId.toString()}
+        }
+    };
+
+    try {
+        log(chalk.green("Updating prizeId in dynamo for next run..."));
+        dynamoDb.putItem(putParams, function(err, data) {
+            if (err) {
+                log(chalk.red("Something went wrong while trying to savve an updated prize id to dynamo..." + err));
+            } else {
+                log(chalk.green("Updated prize id counter in dynamo."));
+            }
+        })
+    } catch (err) {
+        log(chalk.red("Something went wrong while trying to update the prize Id. Please scrap this run and start over..." + err));
+    }
+
+    return somePrizeId;
 }
 
 async function uploadFiles(files) {
