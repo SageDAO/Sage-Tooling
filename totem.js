@@ -5,6 +5,7 @@ import chalk from 'chalk';
 import aws from 'aws-sdk';
 import dotenv from 'dotenv';
 import pinataSDK from '@pinata/sdk';
+import { uuid } from 'uuidv4';
 
 dotenv.config();
 const s3Bucket = process.env.S3_BUCKET;
@@ -103,6 +104,7 @@ uploadFilesS3("memex-staging", prizeMetadataCid, prizeFileWrappers);
 
 drop.prizeMetadataCid = prizeMetadataCid;
 drop.prizes = prizeIds.length;
+drop.createdBy = "Tooling";
 
 fs.writeFile("drops/" + dirCid + ".json", JSON.stringify(drop), (err) => {
     if (err) {
@@ -211,7 +213,6 @@ function getDrop(dirCid, files) {
 
             drop.bannerImageIpfsPath = filePathInIpfs;
             drop.bannerImageS3Path = filePathInS3;
-            drop.bannerImageName = name;
         } else if (f.name.includes(".car")) {
             drop.carIpfsPath = filePathInIpfs;
             drop.carS3Path = filePathInS3;
@@ -240,6 +241,9 @@ function hydrateDropMetadata(drop, pathToMetadata) {
     drop.dropDescription = relevantMetadata.dropDescription;
     drop.numberOfNftsInDrop = relevantMetadata.numberOfNftsInDrop;
     drop.tags = relevantMetadata.tags;
+    drop.bannerImageName = relevantMetadata.bannerImageName;
+    drop.defaultPrizeId = relevantMetadata.defaultPrizeId;
+    drop.walletAddress = uuid(); // TODO: replace with relevantMetadata.walletAddress when we have real data, or a randomly-generated wallet address otherwise.
 
     // add rarities 
     log(chalk.gray("Adding rarities."));

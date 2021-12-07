@@ -10,46 +10,61 @@ datasource db {
 }
 
 model Nft {
-  id          Int    @id @default(autoincrement())
-  dropId      Int
-  name        String
-  description String
-  rarity      String
-  ipfsPath    String
-  s3Path      String
-  tags        String
-  drop        Drop   @relation(fields: [dropId], references: [id])
+  id                            Int          @id @default(autoincrement())
+  dropId                        Int
+  name                          String
+  description                   String
+  rarity                        String
+  ipfsPath                      String
+  s3Path                        String
+  tags                          String
+  numberOfMints                 Int          @default(0)
+  drop                          Drop         @relation(fields: [dropId], references: [id])
+  Drop_Drop_defaultPrizeIdToNft Drop[]       @relation("Drop_defaultPrizeIdToNft")
+  PrizeProof                    PrizeProof[]
 }
 
 model Drop {
-  id                  Int    @id @default(autoincrement())
-  bannerImageName     String
-  artistName          String
-  costPerTicket       Int
-  dropDescription     String
-  dropName            String
-  endTime             String
-  lotteryId           Int
-  prizeMetadataCid    String
-  startTime           String
-  prizes              Int    @default(0)
-  bannerImageIpfsPath String
-  bannerImageS3Path   String
-  metadataIpfsPath    String
-  metadataS3Path      String
-  tags                String
-  Nft                 Nft[]
-  User                User[]
+  id                           Int       @id @default(autoincrement())
+  bannerImageName              String
+  dropDescription              String
+  dropName                     String
+  endTime                      String
+  lotteryId                    Int
+  prizeMetadataCid             String
+  startTime                    String
+  bannerImageIpfsPath          String
+  bannerImageS3Path            String
+  metadataIpfsPath             String
+  metadataS3Path               String
+  tags                         String
+  approvedAt                   DateTime?
+  approvedBy                   String?   @db.Char(42)
+  blockchainCreatedAt          DateTime?
+  createdAt                    DateTime  @default(now())
+  royaltyPercentage            Float     @default(0.0)
+  createdBy                    String    @db.Char(42)
+  defaultPrizeId               Int?
+  costPerTicketCoins           Float     @default(0.0)
+  costPerTicketPoints          BigInt    @default(0)
+  maxParticipants              Int       @default(0)
+  User_Drop_approvedByToUser   User?     @relation("Drop_approvedByToUser", fields: [approvedBy], references: [walletAddress])
+  User_Drop_createdByToUser    User      @relation("Drop_createdByToUser", fields: [createdBy], references: [walletAddress])
+  Nft_Drop_defaultPrizeIdToNft Nft?      @relation("Drop_defaultPrizeIdToNft", fields: [defaultPrizeId], references: [id])
+  Nft                          Nft[]
+  User_userFavoriteDrops       User[]    @relation("userFavoriteDrops")
 }
 
 model PrizeProof {
   lotteryId     Int
-  winnerAddress String  @db.Char(42)
-  prizeId       Int
+  winnerAddress String    @db.Char(42)
   proof         String
-  claimed       Boolean @default(false)
+  claimedAt     DateTime?
+  createdAt     DateTime
+  nftId         Int
+  Nft           Nft       @relation(fields: [nftId], references: [id])
 
-  @@id([lotteryId, winnerAddress, prizeId])
+  @@id([lotteryId, winnerAddress])
 }
 
 model MemeTransactions {
@@ -57,7 +72,7 @@ model MemeTransactions {
   blockTimestamp Int
   from           String    @db.Char(42)
   to             String    @db.Char(42)
-  value          BigInt
+  value          String
   assetType      AssetType
   id             Int       @id @default(autoincrement())
   txHash         String    @db.Char(66)
@@ -66,33 +81,39 @@ model MemeTransactions {
 }
 
 model RewardPublished {
-  address           String @id @db.Char(42)
-  totalPointsEarned BigInt @default(0)
+  address           String   @id @db.Char(42)
+  totalPointsEarned BigInt   @default(0)
   proof             String
+  updatedAt         DateTime @default(now())
 }
 
 model RewardType {
-  type            AssetType @id
-  rewardRate      Float     @default(0)
-  lastBlockNumber BigInt    @default(0)
+  type               AssetType @id
+  rewardRate         Float
+  lastBlockInspected BigInt
+  chainId            Int
+  contract           String    @db.Char(42)
+  startingBlock      BigInt
 }
 
 model User {
-  walletAddress String   @id @db.Char(42)
-  userName      String?
-  email         String?  @unique
-  createdAt     DateTime @default(now())
-  role          Role     @default(USER)
-  bio           String?  @db.VarChar(200)
-  Drop          Drop[]
+  walletAddress              String   @id @db.Char(42)
+  userName                   String?
+  email                      String?  @unique
+  createdAt                  DateTime @default(now())
+  role                       Role     @default(USER)
+  bio                        String?  @db.VarChar(200)
+  Drop_Drop_approvedByToUser Drop[]   @relation("Drop_approvedByToUser")
+  Drop_Drop_createdByToUser  Drop[]   @relation("Drop_createdByToUser")
+  Drop_userFavoriteDrops     Drop[]   @relation("userFavoriteDrops")
 
   @@index([walletAddress])
 }
 
 enum AssetType {
-  ETH_MEME
-  FTM_MEME
-  FTM_LIQ
+  ETH_MEMEINU
+  FTM_MEMEINU
+  FTM_LIQUIDITY
 }
 
 enum Role {

@@ -93,12 +93,9 @@ function saveDrop(drop) {
             bannerImageName: drop.banner.name,
             metadataIpfsPath: drop.metadataIpfsPath,
             metadataS3Path: drop.metadataS3Path,
-            costPerTicket: drop.costPerTicket,
-            prizes: drop.prizes,
             prizeMetadataCid: drop.prizeMetadataCid,
             startTime: drop.startTime,
             endTime: drop.endTime,
-            artistName: drop.artistName,
             dropName: drop.dropName,
             dropDescription: drop.dropDescription,
             tags: drop.tags,
@@ -106,12 +103,22 @@ function saveDrop(drop) {
                 createMany: {
                     data: nftsAsData
                 }
+            },
+            User_Drop_createdByToUser: {
+                create: {
+                    walletAddress: drop.walletAddress,
+                    userName: drop.artistName
+                }
             }
         }
     });
 
     createDropRequest.then(savedDrop => {
-        log(chalk.green("Saved drop :", JSON.stringify(savedDrop)));
+        // Need to stringify this way in order to properly stringify BigInt.
+        // Otherwise it'll throw an exception when it encounters BigInt properties.
+        log(chalk.green("Saved drop :", JSON.stringify(savedDrop, (key, value) =>
+            typeof value === 'bigint' ? value.toString() : value
+        )));
     }, err => {
         log(chalk.red("Unable to save drop..."), err);
     });
