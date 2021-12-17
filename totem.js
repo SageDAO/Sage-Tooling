@@ -6,6 +6,7 @@ import aws from 'aws-sdk';
 import dotenv from 'dotenv';
 import pinataSDK from '@pinata/sdk';
 import { uuid } from 'uuidv4';
+import { error } from 'console';
 
 const log = console.log;
 
@@ -13,9 +14,8 @@ log(chalk.green("Loading AWS credentials."));
 aws.config.loadFromPath('./awsConfig.json');
 
 dotenv.config();
-const s3Bucket = process.env.S3_BUCKET;
 
-const dynamoDb = new aws.DynamoDB({apiVersion: '2012-08-10'});
+const s3Bucket = process.env.S3_BUCKET;
 const dynamoDocumentClient = new aws.DynamoDB.DocumentClient();
 
 var s3 = new aws.S3({
@@ -150,6 +150,7 @@ function stageDropFiles(artistFilesPath, dropDir) {
 
 async function getPrizeId(numberOfPrizes) {
     let somePrizeId = 0;
+    let somePrizeIdVersion = 0;
 
     const getParams = {
         TableName: 'memex-tooling-metadata',
@@ -160,35 +161,44 @@ async function getPrizeId(numberOfPrizes) {
 
     try {
         const someResponse = await dynamoDocumentClient.get(getParams).promise();
-        somePrizeId = JSON.parse(someResponse.Item.value);
+        somePrizeId = someResponse.Item.currentValue;
+        somePrizeIdVersion = someResponse.Item.version;
     } catch (err) {
         log(chalk.red("Something went wrong while trying to talk to dynamo... " + err));
     }
 
-    log(chalk.yellowBright(`type of ${somePrizeId} is ${typeof somePrizeId} and type of ${numberOfPrizes} is ${typeof numberOfPrizes}`))
-    log(chalk.yellowBright(`Adding ${somePrizeId} and ${numberOfPrizes}`))
-
     const targetPrizeId = somePrizeId + numberOfPrizes;
+    const targetVersion = somePrizeIdVersion + 1;
 
-    const putParams = {
+    const updateParams = {
         TableName: 'memex-tooling-metadata',
-        Item: {
-            'variableName': {S: "prizeIdCounter"},
-            'value': {S: targetPrizeId.toString()}
+        Key: {
+            'variableName': 'prizeIdCounter'
+        },
+        UpdateExpression: 'set currentValue = :newValue, version = :newVersion',
+        ConditionExpression: 'version = :expectedVersion',
+        ExpressionAttributeValues: {
+            ':newValue': targetPrizeId.toString(),
+            ':newVersion': targetVersion,
+            ':expectedVersion': somePrizeIdVersion
         }
-    };
+    }
+
+    log(chalk.green("Attemptin to update prizeId in Dynamo..."));
 
     try {
-        log(chalk.green("Updating prizeId in dynamo for next run..."));
-        dynamoDb.putItem(putParams, function(err, data) {
+        dynamoDocumentClient.update(updateParams, function(err, data) {
             if (err) {
-                log(chalk.red("Something went wrong while trying to savve an updated prize id to dynamo..." + err));
+                log(chalk.red("Something went wrong while attempting an update..."), err);
+                if (err instanceof ConditionalCheckFailedException) {
+                    log(chalk.redBright("Because of incorrect version!!! Add recursive call here"));
+                }
             } else {
-                log(chalk.green("Updated prize id counter in dynamo."));
+                log(chalk.greenBright("Updated prize id counter in dynamo..."));
             }
-        })
+        });
     } catch (err) {
-        log(chalk.red("Something went wrong while trying to update the prize Id. Please scrap this run and start over..." + err));
+        log(chalk.red("Something went wrong while trying to update the prize id...Please start over." + err));
     }
 
     return somePrizeId;
