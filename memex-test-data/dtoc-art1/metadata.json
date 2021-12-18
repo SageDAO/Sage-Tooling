@@ -37,5 +37,11 @@
         "numberOfMints": 1000,
         "tags": "snacks"
     },
+    "nft5": {
+        "name": "Infinite",
+        "description": "Infinite metals",
+        "numberOfMints": 10000,
+        "tags": "infinite infinity"
+    },
     "walletAddress": "83546"
 }

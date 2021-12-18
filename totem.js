@@ -178,7 +178,7 @@ async function getPrizeId(numberOfPrizes) {
         UpdateExpression: 'set currentValue = :newValue, version = :newVersion',
         ConditionExpression: 'version = :expectedVersion',
         ExpressionAttributeValues: {
-            ':newValue': targetPrizeId.toString(),
+            ':newValue': targetPrizeId,
             ':newVersion': targetVersion,
             ':expectedVersion': somePrizeIdVersion
         }
@@ -189,9 +189,9 @@ async function getPrizeId(numberOfPrizes) {
     try {
         dynamoDocumentClient.update(updateParams, function(err, data) {
             if (err) {
-                log(chalk.red("Something went wrong while attempting an update..."), err);
-                if (err instanceof ConditionalCheckFailedException) {
-                    log(chalk.redBright("Because of incorrect version!!! Add recursive call here"));
+                if (err === 'ConditionalCheckFailedException') {
+                    log(chalk.yellowBright("Unable to save prize id counter due to incorrect version. Trying again."));
+                    return getPrizeId(numberOfPrizes);
                 }
             } else {
                 log(chalk.greenBright("Updated prize id counter in dynamo..."));
@@ -320,7 +320,9 @@ function hydrateDropMetadata(drop, pathToMetadata) {
     let nftsWithRarity = [];
 
     drop.nfts.forEach(nft => {
-        var nftName = nft.name.split('.')[0];
+        var tokens = nft.fileName.split('.');
+        var nftName = tokens[0];
+        var nftFileType = tokens[1];
         var relevantEntryInMetadata = drop.metadata[nftName];
 
         const numberOfMints = relevantEntryInMetadata.numberOfMints;
@@ -335,13 +337,18 @@ function hydrateDropMetadata(drop, pathToMetadata) {
             'rarity': rarity,
             'ipfsPath': nft.ipfsPath,
             's3Path': nft.s3Path,
-            'tags': relevantEntryInMetadata.tags
+            'tags': relevantEntryInMetadata.tags,
+            'isVideo': isVideo(nftFileType)
         });
     });
 
     log(chalk.green("Added rarities."));
 
     drop.nfts = nftsWithRarity;
+}
+
+function isVideo(fileType) {
+    return fileType.includes("mp4");
 }
 
 function createPrizes(drop) {
