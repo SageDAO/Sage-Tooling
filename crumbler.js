@@ -81,7 +81,8 @@ function saveDrop(drop) {
           rarity: nft.rarity,
           ipfsPath: nft.ipfsPath,
           s3Path: nft.s3Path,
-          tags: nft.tags
+          tags: nft.tags,
+          isVideo: nft.isVideo
         });
     });
 
