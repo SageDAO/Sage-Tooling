@@ -57,14 +57,14 @@ function createDrops() {
     log(chalk.green("Created drops.json"));
 
     uploadDropsToS3().then(() => {
-        log(chalk.blue("Uploaded drops to S3."));
+        log(chalk.blueBright("Uploaded drops to S3."));
     });
 
     saveDrops(drops);
 }
 
 function saveDrops(drops) {
-    log(chalk.blue("Saving drops to database."));
+    log(chalk.blueBright("Saving drops to database."));
 
     for (const drop of drops) {
         saveDrop(drop);
@@ -94,6 +94,8 @@ function saveDrop(drop) {
             bannerImageName: drop.banner.name,
             metadataIpfsPath: drop.metadataIpfsPath,
             metadataS3Path: drop.metadataS3Path,
+            dropTileContentIpfsUrl: drop.dropTileContentIpfsUrl,
+            dropTileContentS3Url: drop.dropTileContentIpfsUrl,
             prizeMetadataCid: drop.prizeMetadataCid,
             startTime: drop.startTime,
             endTime: drop.endTime,
