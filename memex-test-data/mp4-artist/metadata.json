@@ -1,0 +1,41 @@
+{
+    "status": "planned",
+    "entryFee": 1,
+    "lotteryId": 123456789,
+    "lotSize": 2,
+    "costPerTicketCoins": 1,
+    "costPerTicketPoints": 1,
+    "startTime": "1638766800",
+    "endTime": "1640408400",
+    "artistName": "mp4-artist",
+    "bannerImageName": "some banner image name",
+    "dropName": "mp4-artist-drop",
+    "dropDescription": "someDescription",
+    "numberOfNftsInDrop": 4,
+    "tags": "mp4 mp4-artist mp4-artist-drop",
+    "nft1": {
+        "name": "Infinite",
+        "description": "Infinite metals",
+        "numberOfMints": 2,
+        "tags": "infinite infinity"
+    },
+    "nft2": {
+        "name": "Starry Sky",
+        "description": "A vast starry sky",
+        "numberOfMints": 10,
+        "tags": "starry sky"
+    },
+    "nft3": {
+        "name": "Iris",
+        "description": "A picture of someone's iris",
+        "numberOfMints": 100,
+        "tags": "iris"
+    },
+    "nft4": {
+        "name": "Yummies",
+        "description": "An assortment of yummy snacks",
+        "numberOfMints": 1000,
+        "tags": "snacks"
+    },
+    "walletAddress": "83546"
+}
