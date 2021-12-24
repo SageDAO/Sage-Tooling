@@ -94,10 +94,10 @@ model RewardPublished {
 model RewardType {
   type               AssetType @id
   rewardRate         Float
-  lastBlockInspected BigInt
+  lastBlockInspected Int
   chainId            Int
   contract           String    @db.Char(42)
-  startingBlock      BigInt
+  startingBlock      Int
 }
 
 model User {

@@ -11,3 +11,7 @@ ADD COLUMN     "dropTileContentS3Url" TEXT NOT NULL;
 
 -- AlterTable
 ALTER TABLE "Nft" ADD COLUMN     "isVideo" BOOLEAN NOT NULL DEFAULT false;
+
+ALTER TABLE "RewardType" ALTER COLUMN "lastBlockInspected" TYPE INTEGER;
+
+ALTER TABLE "RewardType" ALTER COLUMN "startingBlock" TYPE INTEGER;
