@@ -350,8 +350,6 @@ function hydrateDropMetadata(drop, pathToMetadata) {
 
     drop.dropTileContentIpfsUrl = firstDrop.ipfsPath;
     drop.dropTileContentS3Url = firstDrop.s3Path;
-
-    drop
 }
 
 function isVideo(fileType) {
