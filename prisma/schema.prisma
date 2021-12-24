@@ -38,6 +38,8 @@ model Drop {
   bannerImageS3Path            String
   metadataIpfsPath             String
   metadataS3Path               String
+  dropTileContentIpfsUrl       String
+  dropTileContentS3Url         String
   tags                         String
   approvedAt                   DateTime?
   approvedBy                   String?   @db.Char(42)

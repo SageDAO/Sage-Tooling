@@ -345,6 +345,11 @@ function hydrateDropMetadata(drop, pathToMetadata) {
     log(chalk.green("Added rarities."));
 
     drop.nfts = nftsWithRarity;
+
+    var firstDrop = nftsWithRarity[0];
+
+    drop.dropTileContentIpfsUrl = firstDrop.ipfsPath;
+    drop.dropTileContentS3Url = firstDrop.s3Path;
 }
 
 function isVideo(fileType) {
