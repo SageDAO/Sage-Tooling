@@ -95,7 +95,7 @@ function saveDrop(drop) {
             metadataIpfsPath: drop.metadataIpfsPath,
             metadataS3Path: drop.metadataS3Path,
             dropTileContentIpfsUrl: drop.dropTileContentIpfsUrl,
-            dropTileContentS3Url: drop.dropTileContentIpfsUrl,
+            dropTileContentS3Url: drop.dropTileContentS3Url,
             prizeMetadataCid: drop.prizeMetadataCid,
             startTime: drop.startTime,
             endTime: drop.endTime,
