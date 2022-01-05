@@ -96,3 +96,9 @@ After that is done executing, you should be able to run the updated Lambda. For 
 check out: 
 
 https://docs.aws.amazon.com/lambda/latest/dg/nodejs-package.html
+
+## Seeding the DB
+
+To seed the database with initial data, you can run the following command:
+
+```npx prisma db seed```
