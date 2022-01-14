@@ -294,7 +294,8 @@ function hydrateDropMetadata(drop, pathToMetadata) {
     drop.metadata = relevantMetadata;
 
     drop.lotteryId = relevantMetadata.lotteryId; // this is just for testing purposes, the real value gets backfilled into the database after the lottery gets created and deployed
-    drop.costPerTicket = relevantMetadata.costPerTicket;
+    drop.costPerTicketCoins = relevantMetadata.costPerTicketCoins;
+    drop.costPerTicketPoints = relevantMetadata.costPerTicketPoints;
     drop.startTime = relevantMetadata.startTime;
     drop.endTime = relevantMetadata.endTime;
     drop.artistName = relevantMetadata.artistName;

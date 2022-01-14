@@ -92,6 +92,8 @@ function saveDrop(drop) {
             bannerImageIpfsPath: drop.banner.ipfsPath,
             bannerImageS3Path: drop.banner.s3Path,
             bannerImageName: drop.banner.name,
+            costPerTicketCoins: drop.costPerTicketCoins,
+            costPerTicketPoints: drop.costPerTicketPoints,
             metadataIpfsPath: drop.metadataIpfsPath,
             metadataS3Path: drop.metadataS3Path,
             dropTileContentIpfsUrl: drop.dropTileContentIpfsUrl,
@@ -125,6 +127,8 @@ function saveDrop(drop) {
     }, err => {
         log(chalk.red("Unable to save drop..."), err);
     });
+
+    prisma.$disconnect();
 }
 
 function appendDrop() {
