@@ -18,8 +18,8 @@ model Nft {
   ipfsPath                      String
   s3Path                        String
   tags                          String
-  isVideo                       Boolean      @default(false)
   numberOfMints                 Int          @default(0)
+  isVideo                       Boolean      @default(false)
   drop                          Drop         @relation(fields: [dropId], references: [id])
   Drop_Drop_defaultPrizeIdToNft Drop[]       @relation("Drop_defaultPrizeIdToNft")
   PrizeProof                    PrizeProof[]
@@ -38,8 +38,6 @@ model Drop {
   bannerImageS3Path            String
   metadataIpfsPath             String
   metadataS3Path               String
-  dropTileContentIpfsUrl       String
-  dropTileContentS3Url         String
   tags                         String
   approvedAt                   DateTime?
   approvedBy                   String?   @db.Char(42)
@@ -49,9 +47,11 @@ model Drop {
   createdAt                    DateTime  @default(now())
   createdBy                    String    @db.Char(42)
   defaultPrizeId               Int?
+  isLive                       Boolean   @default(false)
   maxParticipants              Int       @default(0)
   royaltyPercentage            Float     @default(0.0)
-  isLive                       Boolean   @default(false)
+  dropTileContentIpfsUrl       String
+  dropTileContentS3Url         String
   User_Drop_approvedByToUser   User?     @relation("Drop_approvedByToUser", fields: [approvedBy], references: [walletAddress])
   User_Drop_createdByToUser    User      @relation("Drop_createdByToUser", fields: [createdBy], references: [walletAddress])
   Nft_Drop_defaultPrizeIdToNft Nft?      @relation("Drop_defaultPrizeIdToNft", fields: [defaultPrizeId], references: [id])
