@@ -8,7 +8,7 @@ async function main() {
     create: {
       type: 'ETH_MEMEINU',
       chainId: 1,
-      rewardRate: 0.00000000000000000001157407407407407407,
+      rewardRate: 0.000000000001157407407407407407,
       contract: '0x74b988156925937bd4e082f0ed7429da8eaea8db',
       startingBlock: 13649693,
       lastBlockInspected: 13649692,
@@ -22,7 +22,7 @@ async function main() {
     create: {
       type: 'FTM_MEMEINU',
       chainId: 250,
-      rewardRate: 0.00000000000000000001157407407407407407,
+      rewardRate: 0.000000000001157407407407407407,
       contract: '0xd1790c5435b9fb7c9444c749cefe53d40d751eac',
       startingBlock: 22976955,
       lastBlockInspected: 22976954,
