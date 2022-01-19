@@ -86,37 +86,76 @@ function saveDrop(drop) {
         });
     });
 
-    const createDropRequest = prisma.drop.create({
-        data: {
-            lotteryId: drop.lotteryId,
-            bannerImageIpfsPath: drop.banner.ipfsPath,
-            bannerImageS3Path: drop.banner.s3Path,
-            bannerImageName: drop.banner.name,
-            costPerTicketCoins: drop.costPerTicketCoins,
-            costPerTicketPoints: drop.costPerTicketPoints,
-            metadataIpfsPath: drop.metadataIpfsPath,
-            metadataS3Path: drop.metadataS3Path,
-            dropTileContentIpfsUrl: drop.dropTileContentIpfsUrl,
-            dropTileContentS3Url: drop.dropTileContentS3Url,
-            prizeMetadataCid: drop.prizeMetadataCid,
-            startTime: drop.startTime,
-            endTime: drop.endTime,
-            dropName: drop.dropName,
-            dropDescription: drop.dropDescription,
-            tags: drop.tags,
-            Nft: {
-                createMany: {
-                    data: nftsAsData
-                }
-            },
-            User_Drop_createdByToUser: {
-                create: {
-                    walletAddress: drop.walletAddress,
-                    userName: drop.artistName
-                }
-            }
+    var existingUser = prisma.user.findUnique({
+        where: {
+            walletAddress: drop.walletAddress
         }
     });
+
+    let createDropRequest;
+
+    if (existingUser) {
+        log(chalk.green("This is an existing user, therefore skipping user creation."));
+        createDropRequest = prisma.drop.create({
+            data: {
+                lotteryId: drop.lotteryId,
+                bannerImageIpfsPath: drop.banner.ipfsPath,
+                bannerImageS3Path: drop.banner.s3Path,
+                bannerImageName: drop.banner.name,
+                costPerTicketCoins: drop.costPerTicketCoins,
+                costPerTicketPoints: drop.costPerTicketPoints,
+                createdBy: drop.walletAddress,
+                metadataIpfsPath: drop.metadataIpfsPath,
+                metadataS3Path: drop.metadataS3Path,
+                dropTileContentIpfsUrl: drop.dropTileContentIpfsUrl,
+                dropTileContentS3Url: drop.dropTileContentS3Url,
+                prizeMetadataCid: drop.prizeMetadataCid,
+                startTime: drop.startTime,
+                endTime: drop.endTime,
+                dropName: drop.dropName,
+                dropDescription: drop.dropDescription,
+                tags: drop.tags,
+                Nft: {
+                    createMany: {
+                        data: nftsAsData
+                    }
+                }
+            }
+        });
+    } else {
+        log(chalk.green("This is a new user, therefore also creating a user."));
+        createDropRequest = prisma.drop.create({
+            data: {
+                lotteryId: drop.lotteryId,
+                bannerImageIpfsPath: drop.banner.ipfsPath,
+                bannerImageS3Path: drop.banner.s3Path,
+                bannerImageName: drop.banner.name,
+                costPerTicketCoins: drop.costPerTicketCoins,
+                costPerTicketPoints: drop.costPerTicketPoints,
+                metadataIpfsPath: drop.metadataIpfsPath,
+                metadataS3Path: drop.metadataS3Path,
+                dropTileContentIpfsUrl: drop.dropTileContentIpfsUrl,
+                dropTileContentS3Url: drop.dropTileContentS3Url,
+                prizeMetadataCid: drop.prizeMetadataCid,
+                startTime: drop.startTime,
+                endTime: drop.endTime,
+                dropName: drop.dropName,
+                dropDescription: drop.dropDescription,
+                tags: drop.tags,
+                Nft: {
+                    createMany: {
+                        data: nftsAsData
+                    }
+                },
+                User_Drop_createdByToUser: {
+                    create: {
+                        walletAddress: drop.walletAddress,
+                        userName: drop.artistName
+                    }
+                }
+            }
+        });
+    }
 
     createDropRequest.then(savedDrop => {
         // Need to stringify this way in order to properly stringify BigInt.

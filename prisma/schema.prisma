@@ -53,7 +53,7 @@ model Drop {
   dropTileContentIpfsUrl       String
   dropTileContentS3Url         String
   User_Drop_approvedByToUser   User?     @relation("Drop_approvedByToUser", fields: [approvedBy], references: [walletAddress])
-  User_Drop_createdByToUser    User      @relation("Drop_createdByToUser", fields: [createdBy], references: [walletAddress])
+  User_Drop_createdByToUser    User?     @relation("Drop_createdByToUser", fields: [createdBy], references: [walletAddress])
   Nft_Drop_defaultPrizeIdToNft Nft?      @relation("Drop_defaultPrizeIdToNft", fields: [defaultPrizeId], references: [id])
   Nft                          Nft[]
   User_userFavoriteDrops       User[]    @relation("userFavoriteDrops")
