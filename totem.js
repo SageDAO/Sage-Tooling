@@ -293,7 +293,6 @@ function hydrateDropMetadata(drop, pathToMetadata) {
     const relevantMetadata = JSON.parse(fs.readFileSync(pathToMetadata, 'utf8'));
     drop.metadata = relevantMetadata;
 
-    drop.lotteryId = relevantMetadata.lotteryId; // this is just for testing purposes, the real value gets backfilled into the database after the lottery gets created and deployed
     drop.costPerTicketCoins = relevantMetadata.costPerTicketCoins;
     drop.costPerTicketPoints = relevantMetadata.costPerTicketPoints;
     drop.startTime = relevantMetadata.startTime;
@@ -305,7 +304,7 @@ function hydrateDropMetadata(drop, pathToMetadata) {
     drop.tags = relevantMetadata.tags;
     drop.bannerImageName = relevantMetadata.bannerImageName;
     drop.defaultPrizeId = relevantMetadata.defaultPrizeId;
-    drop.walletAddress = uuid(); // TODO: replace with relevantMetadata.walletAddress when we have real data, or a randomly-generated wallet address otherwise.
+    drop.walletAddress = relevantMetadata.walletAddress;
 
     // add rarities 
     log(chalk.gray("Adding rarities."));
