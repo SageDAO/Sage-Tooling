@@ -293,6 +293,7 @@ function hydrateDropMetadata(drop, pathToMetadata) {
     const relevantMetadata = JSON.parse(fs.readFileSync(pathToMetadata, 'utf8'));
     drop.metadata = relevantMetadata;
 
+    drop.lotteryId = relevantMetadata.lotteryId; // Gets backfilled with an updated value later. 
     drop.costPerTicketCoins = relevantMetadata.costPerTicketCoins;
     drop.costPerTicketPoints = relevantMetadata.costPerTicketPoints;
     drop.startTime = relevantMetadata.startTime;
