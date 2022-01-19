@@ -107,6 +107,7 @@ function saveDrop(drop) {
                 createdBy: drop.walletAddress,
                 metadataIpfsPath: drop.metadataIpfsPath,
                 metadataS3Path: drop.metadataS3Path,
+                numberOfMints: drop.numberOfMints,
                 dropTileContentIpfsUrl: drop.dropTileContentIpfsUrl,
                 dropTileContentS3Url: drop.dropTileContentS3Url,
                 prizeMetadataCid: drop.prizeMetadataCid,
