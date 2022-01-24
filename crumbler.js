@@ -86,7 +86,7 @@ function saveDrop(drop) {
         });
     });
 
-    var checkExistingUser = prisma.user.findUnique({
+    var checkExistingUser = prisma.user.findFirst({
         where: {
             walletAddress: drop.walletAddress
         }
@@ -109,6 +109,7 @@ function saveDrop(drop) {
                     metadataIpfsPath: drop.metadataIpfsPath,
                     metadataS3Path: drop.metadataS3Path,
                     numberOfMints: drop.numberOfMints,
+                    defaultPrizeId: drop.defaultPrizeId,
                     dropTileContentIpfsUrl: drop.dropTileContentIpfsUrl,
                     dropTileContentS3Url: drop.dropTileContentS3Url,
                     prizeMetadataCid: drop.prizeMetadataCid,
@@ -136,6 +137,7 @@ function saveDrop(drop) {
                     costPerTicketPoints: drop.costPerTicketPoints,
                     metadataIpfsPath: drop.metadataIpfsPath,
                     metadataS3Path: drop.metadataS3Path,
+                    defaultPrizeId: drop.defaultPrizeId,
                     dropTileContentIpfsUrl: drop.dropTileContentIpfsUrl,
                     dropTileContentS3Url: drop.dropTileContentS3Url,
                     prizeMetadataCid: drop.prizeMetadataCid,

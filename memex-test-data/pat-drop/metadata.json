@@ -1,11 +1,10 @@
 {
   "status": "planned",
-  "entryFee": 1,
   "lotteryId": 111,
-  "lotSize": 2,
-  "costPerTicket": 1,
-  "startTime": "1638766800",
-  "endTime": "1640408400",
+  "costPerTicketCoins": 1,
+  "costPerTicketPoints": 1,
+  "startTime": "1642979499",
+  "endTime": "1642983088",
   "artistName": "pat",
   "dropName": "pat-drop",
   "dropDescription": "The snow is deep on the ground. Always the light falls Softly down on the hair of my beloved.",
@@ -15,13 +14,16 @@
   "nft1": {
     "name": "Icy",
     "description": "A gentle snowman, full of life.",
-    "numberOfMints": 10,
-    "tags": "snow"
+    "numberOfMints": 1,
+    "tags": "snow",
+    "isDefaultPrize": false 
   },
   "nft2": {
     "name": "Everglow",
     "description": "Never ending joy, all in one.",
-    "numberOfMints": 100,
-    "tags": "tree"
-  }
+    "numberOfMints": 0, 
+    "tags": "tree",
+    "isDefaultPrize": true
+  },
+  "walletAddress": "0x544223D219154D647A4BE47d68820A9171A43e2E"
 }
