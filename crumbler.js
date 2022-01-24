@@ -82,7 +82,8 @@ function saveDrop(drop) {
           ipfsPath: nft.ipfsPath,
           s3Path: nft.s3Path,
           tags: nft.tags,
-          isVideo: nft.isVideo
+          isVideo: nft.isVideo,
+          numberOfMints: nft.numberOfMints
         });
     });
 
@@ -108,7 +109,6 @@ function saveDrop(drop) {
                     createdBy: drop.walletAddress,
                     metadataIpfsPath: drop.metadataIpfsPath,
                     metadataS3Path: drop.metadataS3Path,
-                    numberOfMints: drop.numberOfMints,
                     dropTileContentIpfsUrl: drop.dropTileContentIpfsUrl,
                     dropTileContentS3Url: drop.dropTileContentS3Url,
                     prizeMetadataCid: drop.prizeMetadataCid,
