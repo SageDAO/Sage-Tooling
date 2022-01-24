@@ -36,7 +36,7 @@ async function main() {
     create: {
       type: 'FTM_LIQUIDITY',
       chainId: 250,
-      rewardRate: 0.0, // waiting for a response from the team
+      rewardRate: 5.32301549069e-27, 
       contract: '0x230319cbd36fd911c5537254c99613b447b8a178',
       startingBlock: 25732987,
       lastBlockInspected: 25732986,
