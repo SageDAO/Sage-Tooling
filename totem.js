@@ -330,9 +330,7 @@ function hydrateDropMetadata(drop, pathToMetadata) {
         const probabilityOfPull = Number(((numberOfMints / mintsPerDrop) * 100).toFixed(2));
         const editionsCopy = numberOfMints > 1 ? 'Editions' : 'Edition';
         const rarity = `${numberOfMints} ${editionsCopy} | ${probabilityOfPull}% Chance`;
-
-        console.log(relevantEntryInMetadata.name);
-
+        
         nftsWithRarity.push({
             'name': relevantEntryInMetadata.name,
             'nftPosition': nftPosition,
