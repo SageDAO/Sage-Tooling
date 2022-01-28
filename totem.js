@@ -322,17 +322,20 @@ function hydrateDropMetadata(drop, pathToMetadata) {
 
     drop.nfts.forEach(nft => {
         var tokens = nft.fileName.split('.');
-        var nftName = tokens[0];
+        var nftPosition = tokens[0];
         var nftFileType = tokens[1];
-        var relevantEntryInMetadata = drop.metadata[nftName];
+        var relevantEntryInMetadata = drop.metadata[nftPosition];
 
         const numberOfMints = relevantEntryInMetadata.numberOfMints;
         const probabilityOfPull = Number(((numberOfMints / mintsPerDrop) * 100).toFixed(2));
         const editionsCopy = numberOfMints > 1 ? 'Editions' : 'Edition';
         const rarity = `${numberOfMints} ${editionsCopy} | ${probabilityOfPull}% Chance`;
 
+        console.log(relevantEntryInMetadata.name);
+
         nftsWithRarity.push({
-            'name': nftName,
+            'name': relevantEntryInMetadata.name,
+            'nftPosition': nftPosition,
             'description': relevantEntryInMetadata.description,
             'numberOfMints': numberOfMints,
             'rarity': rarity,
@@ -362,13 +365,9 @@ function createPrizes(drop) {
     log(chalk.gray(`Creating prizes for drop ${JSON.stringify(drop)}`));
 
     drop.nfts.forEach(nft => {
-        var nftName = nft.name.split('.')[0];
-
-        var relevantMetadata = drop.metadata[nftName];
-
         prizes.push({
-            'name': relevantMetadata.name,
-            'description': relevantMetadata.description,
+            'name': nft.name,
+            'description': nft.description,
             'image': nft.path
         });
     });
