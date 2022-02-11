@@ -92,7 +92,8 @@ log(chalk.green("Desired prize id: " + prizeIdCounter));
 
 prizes.forEach(prize => {
     prizeIds.push(prizeIdCounter);
-    fs.writeFileSync(prizeBaseDir + prizeIdCounter + ".json", JSON.stringify(prize));
+    // writing prize metadata to file (should use the json format but without the .json extension)
+    fs.writeFileSync(prizeBaseDir + prizeIdCounter, JSON.stringify(prize));
     prizeIdCounter++;
 });
 
