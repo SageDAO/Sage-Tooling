@@ -9,6 +9,21 @@ datasource db {
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
+model RoyaltySplit {
+  id                 Int      @id @default(autoincrement())
+  destinationAddress String   @db.Char(42)
+  splitterId         Int
+  percent            Float
+  Splitter           Splitter @relation(fields: [splitterId], references: [id])
+}
+
+model Splitter {
+  id              Int            @id @default(autoincrement())
+  splitterAddress String?        @db.Char(42)
+  royaltySplits   RoyaltySplit[]
+  Drops           Drop[]
+}
+
 model Nft {
   id                            Int          @id @default(autoincrement())
   dropId                        Int
@@ -30,10 +45,10 @@ model Drop {
   bannerImageName              String
   dropDescription              String
   dropName                     String
-  endTime                      String
+  endTime                      Int
   lotteryId                    Int
   prizeMetadataCid             String
-  startTime                    String
+  startTime                    Int
   bannerImageIpfsPath          String
   bannerImageS3Path            String
   metadataIpfsPath             String
@@ -52,11 +67,14 @@ model Drop {
   royaltyPercentage            Float     @default(0.0)
   dropTileContentIpfsUrl       String
   dropTileContentS3Url         String
+  finished                     Boolean   @default(false)
   User_Drop_approvedByToUser   User?     @relation("Drop_approvedByToUser", fields: [approvedBy], references: [walletAddress])
-  User_Drop_createdByToUser    User?     @relation("Drop_createdByToUser", fields: [createdBy], references: [walletAddress])
+  User_Drop_createdByToUser    User      @relation("Drop_createdByToUser", fields: [createdBy], references: [walletAddress])
   Nft_Drop_defaultPrizeIdToNft Nft?      @relation("Drop_defaultPrizeIdToNft", fields: [defaultPrizeId], references: [id])
   Nft                          Nft[]
   User_userFavoriteDrops       User[]    @relation("userFavoriteDrops")
+  Splitter                     Splitter? @relation(fields: [splitterId], references: [id])
+  splitterId                   Int?
 }
 
 model PrizeProof {
