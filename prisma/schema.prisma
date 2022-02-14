@@ -84,7 +84,7 @@ model PrizeProof {
   claimedAt     DateTime?
   createdAt     DateTime
   nftId         Int
-  Nft           Nft       @relation(fields: [nftId], references: [id])
+  nft           Nft       @relation(fields: [nftId], references: [id])
 
   @@id([lotteryId, winnerAddress, nftId])
 }
