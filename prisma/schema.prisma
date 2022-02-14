@@ -20,8 +20,8 @@ model RoyaltySplit {
 model Splitter {
   id              Int            @id @default(autoincrement())
   splitterAddress String?        @db.Char(42)
-  royaltySplits   RoyaltySplit[]
   Drops           Drop[]
+  royaltySplits   RoyaltySplit[]
 }
 
 model Nft {
@@ -45,10 +45,8 @@ model Drop {
   bannerImageName              String
   dropDescription              String
   dropName                     String
-  endTime                      Int
   lotteryId                    Int
   prizeMetadataCid             String
-  startTime                    Int
   bannerImageIpfsPath          String
   bannerImageS3Path            String
   metadataIpfsPath             String
@@ -68,13 +66,15 @@ model Drop {
   dropTileContentIpfsUrl       String
   dropTileContentS3Url         String
   finished                     Boolean   @default(false)
+  splitterId                   Int?
+  endTime                      Int
+  startTime                    Int
   User_Drop_approvedByToUser   User?     @relation("Drop_approvedByToUser", fields: [approvedBy], references: [walletAddress])
   User_Drop_createdByToUser    User      @relation("Drop_createdByToUser", fields: [createdBy], references: [walletAddress])
   Nft_Drop_defaultPrizeIdToNft Nft?      @relation("Drop_defaultPrizeIdToNft", fields: [defaultPrizeId], references: [id])
-  Nft                          Nft[]
-  User_userFavoriteDrops       User[]    @relation("userFavoriteDrops")
   Splitter                     Splitter? @relation(fields: [splitterId], references: [id])
-  splitterId                   Int?
+  nfts                         Nft[]
+  User_userFavoriteDrops       User[]    @relation("userFavoriteDrops")
 }
 
 model PrizeProof {
