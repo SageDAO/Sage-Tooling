@@ -143,7 +143,7 @@ model EarnedPoints {
   totalPointsEarned BigInt   @default(0)
   proof             String
   updatedAt         DateTime @default(now())
-  User              User     @relation(fields: [address], references: [walletAddress])
+  User              User?
 }
 
 model RewardType {
@@ -167,7 +167,7 @@ model User {
   ArtistCollections          Collection[] @relation("ArtistCollections")
   Drop_Drop_approvedByToUser Drop[]       @relation("Drop_approvedByToUser")
   Drop_userFavoriteDrops     Drop[]       @relation("userFavoriteDrops")
-  EarnedPoints               EarnedPoints?
+  EarnedPoints               EarnedPoints? @relation(fields: [walletAddress], references: [address])
   @@index([walletAddress])
 }
 
