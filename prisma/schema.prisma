@@ -9,6 +9,12 @@ datasource db {
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
+model Drop {
+  name                             String
+  artistAddress                    String      @db.Char(42)
+  Artist                           User        @relation("ArtistCollections", fields: [artistAddress], references: [walletAddress])
+}
+
 model Collection {
   id                               Int         @id @default(autoincrement())
   primarySplitterId                Int?
@@ -16,17 +22,14 @@ model Collection {
   whitelistId                      Int?
   createdAt                        DateTime    @default(now())
   royaltyPercentage                Float       @default(0.0)
-  artistAddress                    String      @db.Char(42)
   approvedAt                       DateTime?
   approvedBy                       String?     @db.Char(42)
   bannerImageS3Path                String
   collectionMetadataCid            String
   description                      String
   metadataS3Path                   String
-  name                             String
   tags                             String
-  User_Collection_approvedByToUser User?       @relation("Collection_approvedByToUser", fields: [approvedBy], references: [walletAddress])
-  Artist                           User        @relation("ArtistCollections", fields: [artistAddress], references: [walletAddress])
+  ApprovedByUser                   User?       @relation("Collection_approvedByToUser", fields: [approvedBy], references: [walletAddress])
   PrimarySplitter                  Splitter?   @relation("primarySplitter", fields: [primarySplitterId], references: [id])
   SecondarySplitter                Splitter?   @relation("secondarySplitter", fields: [secondarySplitterId], references: [id])
   Whitelist                        Whitelist?  @relation(fields: [whitelistId], references: [id])
@@ -34,7 +37,7 @@ model Collection {
   DirectMint                       DirectMint?
   Lottery                          Lottery?
   Nfts                             Nft[]
-  User_userFavoriteDrops           User[]      @relation("userFavoriteDrops")
+  UserFavoriteDrops                User[]      @relation("userFavoriteDrops")
 }
 
 model SplitEntry {
@@ -83,19 +86,19 @@ model Auction {
 }
 
 model Nft {
-  id            Int          @id @default(autoincrement())
-  name          String
-  description   String
-  rarity        String
-  ipfsPath      String
-  s3Path        String
-  tags          String
-  numberOfMints Int          @default(0)
-  isVideo       Boolean      @default(false)
-  collectionId  Int
-  Collection    Collection   @relation(fields: [collectionId], references: [id])
-  Lottery       Lottery[]
-  PrizeProof    PrizeProof[]
+  id               Int          @id @default(autoincrement())
+  name             String
+  description      String
+  rarity           String
+  ipfsPath         String
+  s3Path           String
+  tags             String
+  numberOfEditions Int          @default(0)
+  isVideo          Boolean      @default(false)
+  collectionId     Int
+  Collection       Collection   @relation(fields: [collectionId], references: [id])
+  Lottery          Lottery[]
+  PrizeProof       PrizeProof[]
 }
 
 model PrizeProof {
@@ -105,7 +108,7 @@ model PrizeProof {
   createdAt     DateTime
   nftId         Int
   collectionId  Int
-  nft           Nft       @relation(fields: [nftId], references: [id])
+  Nft           Nft       @relation(fields: [nftId], references: [id])
 
   @@id([collectionId, winnerAddress, nftId])
 }
@@ -142,17 +145,17 @@ model RewardType {
 }
 
 model User {
-  walletAddress                          String       @id @db.Char(42)
-  email                                  String?      @unique
-  createdAt                              DateTime     @default(now())
-  role                                   Role         @default(USER)
-  bio                                    String?      @db.VarChar(200)
-  profilePicture                         String?
-  username                               String?
-  EarnedPoints                           EarnedPoints?
-  Collection_Collection_approvedByToUser Collection[] @relation("Collection_approvedByToUser")
-  ArtistCollections                      Collection[] @relation("ArtistCollections")
-  Collection_userFavoriteDrops           Collection[] @relation("userFavoriteDrops")
+  walletAddress                 String        @id @db.Char(42)
+  email                         String?       @unique
+  createdAt                     DateTime      @default(now())
+  role                          Role          @default(USER)
+  bio                           String?       @db.VarChar(200)
+  profilePicture                String?
+  username                      String?
+  CollectionsApproved           Collection[]  @relation("Collection_approvedByToUser")
+  ArtistCollections             Collection[]  @relation("ArtistCollections")
+  EarnedPoints                  EarnedPoints?
+  FavoriteCollections           Collection[]  @relation("userFavoriteDrops")
 
   @@index([walletAddress])
 }
