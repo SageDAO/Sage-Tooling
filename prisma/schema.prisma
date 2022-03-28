@@ -46,7 +46,7 @@ model Lottery {
   finished            Boolean    @default(false)
   endTime             Int
   startTime           Int
-  Drop                Drop @relation(fields: [dropId], references: [id])
+  Drop                Drop       @relation(fields: [dropId], references: [id])
   DefaultPrize        Nft?       @relation("defaultPrize", fields: [defaultPrizeId], references: [id])
   Nfts                Nft[]
 
@@ -55,7 +55,7 @@ model Lottery {
 model Auction {
   id                    Int        @id @default(autoincrement())
   dropId                Int        
-  ERC20Address          String     @db.Char(42)
+  erc20Address          String     @db.Char(42)
   buyNowPrice           String?
   lastUpdatedAt         DateTime
   minimumPrice          String?
@@ -162,7 +162,7 @@ model RewardType {
 
 model User {
   walletAddress                 String        @id @db.Char(42)
-  email                         String?       @unique
+  email                         String?       
   createdAt                     DateTime      @default(now())
   role                          Role          @default(USER)
   bio                           String?       @db.VarChar(200)
