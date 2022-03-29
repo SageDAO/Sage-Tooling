@@ -88,9 +88,15 @@ if (!fs.existsSync(prizeBaseDir)) {
 
 var prizeIds = [];
 var prizeIdCounter = await getPrizeId(prizes.length);
+var defaultPrizeId = 0;
+
 log(chalk.green("Desired prize id: " + prizeIdCounter));
 
 prizes.forEach(prize => {
+    if (prize.isDefaultPrize) {
+        defaultPrizeId = prizeIdCounter;
+    }
+
     prizeIds.push(prizeIdCounter);
     // writing prize metadata to file (should use the json format but without the .json extension)
     fs.writeFileSync(prizeBaseDir + prizeIdCounter, JSON.stringify(prize));
@@ -110,6 +116,7 @@ uploadFilesS3("memex-staging", prizeMetadataCid, prizeFileWrappers);
 
 drop.prizeMetadataCid = prizeMetadataCid;
 drop.prizes = prizeIds.length;
+drop.defaultPrizeId = defaultPrizeId;
 drop.createdBy = "Tooling";
 
 fs.writeFile("drops/" + dirCid + ".json", JSON.stringify(drop), (err) => {
@@ -365,9 +372,16 @@ function createPrizes(drop) {
 
     drop.nfts.forEach(nft => {
         prizes.push({
+<<<<<<< HEAD
+            'name': relevantMetadata.name,
+            'description': relevantMetadata.description,
+            'image': nft.path,
+            'isDefaultPrize': relevantMetadata.isDefaultPrize
+=======
             'name': nft.name,
             'description': nft.description,
             'image': nft.path
+>>>>>>> main
         });
     });
 

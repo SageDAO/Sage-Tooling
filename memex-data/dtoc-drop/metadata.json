@@ -1,0 +1,27 @@
+{
+  "status": "planned",
+  "lotteryId": 345,
+  "costPerTicketCoins": 1,
+  "costPerTicketPoints": 1,
+  "startTime": "1644359032",
+  "endTime": "1644366232",
+  "artistName": "meme",
+  "bannerImageName": "ummmm",
+  "dropName": "dtoc drop 2",
+  "dropDescription": "dtoc drop #2, The snow is deep on the ground. Always the light falls Softly down on the hair of my beloved.",
+  "numberOfNftsInDrop": 1,
+  "tags": "dtoc dtoc-drop",
+  "nft1": {
+    "name": "Icy",
+    "description": "A gentle snowman, full of life.",
+    "numberOfMints": 2,
+    "tags": "snow"
+  },
+  "nft2": {
+    "name": "Everglow",
+    "description": "Never ending joy, all in one.",
+    "numberOfMints": 3,
+    "tags": "tree"
+  },
+  "walletAddress": "0x544223D219154D647A4BE47d68820A9171A43e2E"
+}
