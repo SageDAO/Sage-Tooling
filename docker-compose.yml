@@ -1,0 +1,21 @@
+version: "3"
+
+services: 
+  pg:
+    image: postgres:11
+    restart: "always"
+    expose: 
+      - "5432"
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=prisma
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_USER=prisma
+  
+    
+    
+
+  
+
+
