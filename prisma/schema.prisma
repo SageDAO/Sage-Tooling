@@ -24,7 +24,7 @@ model Drop {
   metadataS3Path                   String
   tags                             String
   isLive                           Boolean
-  refundable                       Boolean
+  isRefundable                     Boolean
   artistAddress                    String      @db.Char(42)
   Artist                           User        @relation("ArtistDrops", fields: [artistAddress], references: [walletAddress])
   ApprovedByUser                   User?       @relation("Drop_approvedByToUser", fields: [approvedBy], references: [walletAddress])
