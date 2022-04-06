@@ -94,6 +94,7 @@ model WhitelistEntry {
 model Whitelist {
   id               Int              @id @default(autoincrement())
   contractAddress  String           @db.Char(42)
+  name             String
   Drops            Drop[]
   WhitelistEntries WhitelistEntry[]
 }

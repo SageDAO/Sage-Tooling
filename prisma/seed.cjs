@@ -36,14 +36,26 @@ async function main() {
     create: {
       type: 'FTM_LIQUIDITY',
       chainId: 250,
-      rewardRate: 5.32301549069e-27, 
+      rewardRate: 5.32301549069e-27,
       contract: '0x230319cbd36fd911c5537254c99613b447b8a178',
       startingBlock: 25732987,
       lastBlockInspected: 25732986,
       positionSizeLimit: "100000000000000000000000"
     }
   });
-  
+
+  await prisma.user.upsert({
+    where: { walletAddress: '0x58a26F4048CdFd3785aD2139AeD336595af22fF5' },
+    update: {},
+    create: {
+      walletAddress: '0x58a26F4048CdFd3785aD2139AeD336595af22fF5',
+      createdAt: new Date(),
+      role: 'ADMIN',
+      bio: 'MemeX Dev',
+
+    }
+  })
+
   await prisma.$queryRaw`CREATE UNIQUE INDEX wallet_unique_idx ON public."User" (LOWER("walletAddress"));`;
 }
 
