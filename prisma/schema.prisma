@@ -61,9 +61,9 @@ model Auction {
   dropId                Int        
   erc20Address          String     @db.Char(42)
   buyNowPrice           String?
-  lastUpdatedAt         DateTime
+  lastUpdatedAt         DateTime?
   minimumPrice          String?
-  settled               Boolean
+  settled               Boolean @default(false)
   startTime             DateTime
   endTime               DateTime
   Drop                  Drop @relation(fields: [dropId], references: [id])
