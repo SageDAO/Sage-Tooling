@@ -47,9 +47,10 @@ model Lottery {
   nonMemberCostPerTicketCoins Float      @default(0.0)
   defaultPrizeId              Int?
   maxTickets                  Int        @default(0)
+  maxTicketsPerUser           Int        @default(0)
   finished                    Boolean    @default(false)
-  endTime                     Int
-  startTime                   Int
+  endTime                     DateTime
+  startTime                   DateTime
   Drop                        Drop       @relation(fields: [dropId], references: [id])
   DefaultPrize                Nft?       @relation("defaultPrize", fields: [defaultPrizeId], references: [id])
   Nfts                        Nft[]
