@@ -24,7 +24,6 @@ model Drop {
   metadataS3Path                   String
   tags                             String
   isLive                           Boolean
-  isRefundable                     Boolean
   artistAddress                    String      @db.Char(42)
   Artist                           User        @relation("ArtistDrops", fields: [artistAddress], references: [walletAddress])
   ApprovedByUser                   User?       @relation("Drop_approvedByToUser", fields: [approvedBy], references: [walletAddress])
@@ -38,7 +37,8 @@ model Drop {
 
 model Lottery {
   id                          Int        @id @default(autoincrement()) 
-  dropId                      Int        
+  dropId                      Int    
+  isRefundable                Boolean    @default(false) 
   blockchainCreatedAt         DateTime?
   vipCostPerTicketCoins       Float      @default(0.0)
   vipcostPerTicketPoints      Int        @default(0)
