@@ -173,7 +173,8 @@ model User {
   role                          Role          @default(USER)
   bio                           String?       @db.VarChar(200)
   profilePicture                String?
-  username                      String?
+  username                      String?       @db.VarChar(40)
+  displayName                   String?       @db.VarChar(40)
   DropsApproved                 Drop[]  @relation("Drop_approvedByToUser")
   ArtistDrops                   Drop[]  @relation("ArtistDrops")
   EarnedPoints                  EarnedPoints?
