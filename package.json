@@ -6,7 +6,7 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.44.0",
     "@pinata/sdk": "^1.1.23",
-    "@prisma/client": "^3.3.0",
+    "@prisma/client": "^3.13.0",
     "aws-sdk": "^2.1003.0",
     "chalk": "^4.1.2",
     "dotenv": "^10.0.0",
@@ -26,6 +26,6 @@
     "uuidv4": "^6.2.11"
   },
   "devDependencies": {
-    "prisma": "^3.3.0"
+    "prisma": "^3.13.0"
   }
 }
