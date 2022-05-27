@@ -141,7 +141,7 @@ model PrizeProof {
   @@id([lotteryId, winnerAddress, nftId, ticketNumber])
 }
 
-model MemeTransactions {
+model TokenTransaction {
   blockNumber    Int
   blockTimestamp Int
   from           String    @db.Char(42)
@@ -190,9 +190,7 @@ model User {
 }
 
 enum AssetType {
-  ETH_MEMEINU
-  FTM_MEMEINU
-  FTM_LIQUIDITY
+  ETH_ASH
 }
 
 enum Role {
