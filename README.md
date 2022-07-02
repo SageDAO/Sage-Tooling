@@ -1,6 +1,6 @@
-# MemeX Tooling
+# Sage Tooling
 
-These are utilities needed to operate on the MemeX data layer. 
+These are utilities needed to operate on the Sage data layer. 
 
 ## Dependencies
 
@@ -83,14 +83,14 @@ successfully, you'll see it outputted in the console as well after a successful 
 
 ## Changing Lambdas
 
-Ex: Say you make a change to UpdatingMemeInuBalancePackage. First you need to run the zip command. On Mac, from the same directory as
+Ex: Say you make a change to UpdatingBalancePackage. First you need to run the zip command. On Mac, from the same directory as
 the index.js file you would run:
 
-```zip -r updatingMemeInuBalancePackage.zip .```
+```zip -r updatingPackage.zip .```
 
 Then you would update the Lambda from the terminal with:
 
-```aws lambda update-function-code --function-name testing --zip-file fileb://updatingMemeInuBalancePackage.zip```
+```aws lambda update-function-code --function-name testing --zip-file fileb://updatingBalancePackage.zip```
 
 After that is done executing, you should be able to run the updated Lambda. For more guidance on how to update and deploy Lambdas,
 check out: 
