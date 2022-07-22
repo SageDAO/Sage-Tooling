@@ -133,11 +133,11 @@ model PrizeProof {
   createdAt     DateTime
   nftId         Int
   lotteryId     Int
-  ticketNumber  Int 
+  uri           String
   Nft           Nft       @relation(fields: [nftId], references: [id])
   Lottery       Lottery   @relation(fields: [lotteryId], references: [id])
   
-  @@id([lotteryId, winnerAddress, nftId, ticketNumber])
+  @@id([lotteryId, winnerAddress, nftId])
 }
 
 model TokenTransaction {
@@ -182,6 +182,7 @@ model User {
   role                          Role          @default(USER)
   bio                           String?       @db.VarChar(200)
   profilePicture                String?
+  receiveEmailNotification      Boolean       @default(true)
   username                      String?       @db.VarChar(40)
   displayName                   String?       @db.VarChar(40)
   DropsApproved                 Drop[]        @relation("Drop_approvedByToUser")
