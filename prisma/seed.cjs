@@ -8,11 +8,11 @@ async function main() {
     create: {
       type: "ETH_ASH",
       chainId: 1,
-      rewardRate: 1.1574074074074073e-25,
+      rewardRate: 2.893518518518e-25,
       contract: "0x64d91f12ece7362f91a6f8e7940cd55f05060b92",
       startingBlock: 12447728,
       lastBlockInspected: 12447727,
-      positionSizeLimit: "10000000000000000000000",
+      positionSizeLimit: "1000000000000000000000",
     },
   });
 
