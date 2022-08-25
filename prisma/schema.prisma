@@ -102,7 +102,6 @@ model Nft {
   s3Path                   String
   tags                     String
   numberOfEditions         Int          @default(0)
-  isVideo                  Boolean      @default(false)
   isHidden                 Boolean      @default(false)
   lotteryId                Int?
   price                    Float?
