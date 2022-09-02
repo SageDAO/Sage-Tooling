@@ -241,3 +241,24 @@ enum WhitelistType {
   ERC1155
   MERKLE
 }
+
+enum SaleEventType { 
+  LOTTERY
+  AUCTION
+  MARKETPLACE
+}
+
+model SaleEvent {
+  id              Int    @id @default(autoincrement())
+  eventType       SaleEventType
+  eventId         Int    // lotteryId | auctionId | nftId
+  seller          String @db.Char(42) // artistAddress
+  buyer           String @db.Char(42)
+  amountTokens    Float // ASH
+  amountPoints    Int?
+  amountUSD       Float?
+  txHash          String @db.Char(66)
+  blockTimestamp  Int
+
+  @@unique([txHash])
+}
