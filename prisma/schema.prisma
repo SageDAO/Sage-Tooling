@@ -25,6 +25,7 @@ model Drop {
   Auctions                         Auction[]
   Lotteries                        Lottery[]
   UserFavoriteDrops                User[]      @relation("userFavoriteDrops")
+  FeaturedDropConfig               Config?     @relation("ConfigFeaturedDrop")
 }
 
 model Lottery {
@@ -215,6 +216,13 @@ enum OfferState {
   USED
   CANCELLED
   INVALID
+}
+
+model Config {
+  id              Int    @id @default(autoincrement())
+  featuredDropId  Int
+  FeaturedDrop    Drop  @relation("ConfigFeaturedDrop", fields:[featuredDropId], references:[id])
+  welcomeMessage  String
 }
 
 model Follow {
